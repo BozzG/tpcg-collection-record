@@ -107,35 +107,17 @@ jobs:
         Copy-Item -Path "build\windows\x64\runner\Release\*" -Destination "release-package\" -Recurse -Force
         
         # 创建版本信息文件
-        $versionInfo = @"
-TPCG Collection Record - Windows版本
-构建时间: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
-构建版本: ${{ github.sha }}
-应用大小: ${{ env.BUILD_SIZE }}
-Flutter版本: ${{ env.FLUTTER_VERSION }}
-
-使用说明:
-1. 双击 tpcg_collection_record.exe 运行应用
-2. 确保所有文件在同一目录下
-3. 如遇问题，请检查Windows版本兼容性
-
-项目地址: ${{ github.server_url }}/${{ github.repository }}
-"@
-        $versionInfo | Out-File -FilePath "release-package\VERSION.txt" -Encoding UTF8
+        $buildTime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+        $gitSha = "${{ github.sha }}"
+        $buildSize = "${{ env.BUILD_SIZE }}"
+        $flutterVersion = "${{ env.FLUTTER_VERSION }}"
+        $repoUrl = "${{ github.server_url }}/${{ github.repository }}"
+        
+        $versionContent = "TPCG Collection Record - Windows版本`n构建时间: $buildTime`n构建版本: $gitSha`n应用大小: $buildSize`nFlutter版本: $flutterVersion`n`n使用说明:`n1. 双击 tpcg_collection_record.exe 运行应用`n2. 确保所有文件在同一目录下`n3. 如遇问题，请检查Windows版本兼容性`n`n项目地址: $repoUrl"
+        $versionContent | Out-File -FilePath "release-package\VERSION.txt" -Encoding UTF8
         
         # 创建启动脚本
-        $launchScript = @"
-@echo off
-chcp 65001 >nul
-echo 🚀 启动 TPCG Collection Record...
-echo.
-if exist "tpcg_collection_record.exe" (
-    start "" "tpcg_collection_record.exe"
-) else (
-    echo ❌ 未找到应用程序文件！
-    pause
-)
-"@
+        $launchScript = "@echo off`nchcp 65001 >nul`necho 🚀 启动 TPCG Collection Record...`necho.`nif exist `"tpcg_collection_record.exe`" (`n    start `"`" `"tpcg_collection_record.exe`"`n) else (`n    echo ❌ 未找到应用程序文件！`n    pause`n)"
         $launchScript | Out-File -FilePath "release-package\启动应用.bat" -Encoding Default
         
         Write-Host "📦 发布包创建完成"
