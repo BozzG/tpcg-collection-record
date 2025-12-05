@@ -1,0 +1,196 @@
+name: 🪟 Build Windows App
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # 允许手动触发
+    inputs:
+      release_type:
+        description: '构建类型'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+        - debug
+        - release
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  build-windows:
+    name: 🔨 构建Windows应用
+    runs-on: windows-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: 📥 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: 🔧 设置Flutter环境
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+        cache: true
+        
+    - name: 📋 检查Flutter环境
+      run: |
+        flutter --version
+        flutter doctor -v
+        
+    - name: 🔌 启用Windows桌面支持
+      run: flutter config --enable-windows-desktop
+      
+    - name: 📦 获取项目依赖
+      working-directory: ./app
+      run: |
+        flutter clean
+        flutter pub get
+        flutter pub deps
+      
+    - name: 🔍 代码分析
+      working-directory: ./app
+      run: flutter analyze --no-fatal-infos
+      continue-on-error: true
+      
+    - name: 🧪 运行测试
+      working-directory: ./app
+      run: flutter test
+      continue-on-error: true
+      
+    - name: 🔨 构建Windows应用
+      working-directory: ./app
+      run: |
+        $buildType = "${{ github.event.inputs.release_type || 'release' }}"
+        Write-Host "构建类型: $buildType"
+        flutter build windows --$buildType --verbose
+        
+    - name: 📊 获取构建信息
+      working-directory: ./app
+      run: |
+        $exePath = "build\windows\x64\runner\Release\tpcg_collection_record.exe"
+        if (Test-Path $exePath) {
+          $fileInfo = Get-Item $exePath
+          $fileSize = $fileInfo.Length
+          $fileSizeMB = [math]::Round($fileSize / 1MB, 2)
+          $creationTime = $fileInfo.CreationTime
+          
+          Write-Host "✅ 构建成功！"
+          Write-Host "📁 文件路径: $exePath"
+          Write-Host "📊 文件大小: $fileSizeMB MB"
+          Write-Host "🕐 创建时间: $creationTime"
+          
+          # 设置环境变量供后续步骤使用
+          echo "BUILD_SIZE=$fileSizeMB MB" >> $env:GITHUB_ENV
+          echo "BUILD_SUCCESS=true" >> $env:GITHUB_ENV
+        } else {
+          Write-Host "❌ 构建失败！未找到可执行文件"
+          echo "BUILD_SUCCESS=false" >> $env:GITHUB_ENV
+          exit 1
+        }
+      shell: pwsh
+      
+    - name: 📁 创建发布包
+      if: env.BUILD_SUCCESS == 'true'
+      working-directory: ./app
+      run: |
+        # 创建发布目录
+        New-Item -ItemType Directory -Force -Path "release-package"
+        
+        # 复制所有必需文件
+        Copy-Item -Path "build\windows\x64\runner\Release\*" -Destination "release-package\" -Recurse -Force
+        
+        # 创建版本信息文件
+        $versionInfo = @"
+TPCG Collection Record - Windows版本
+构建时间: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+构建版本: ${{ github.sha }}
+应用大小: ${{ env.BUILD_SIZE }}
+Flutter版本: ${{ env.FLUTTER_VERSION }}
+
+使用说明:
+1. 双击 tpcg_collection_record.exe 运行应用
+2. 确保所有文件在同一目录下
+3. 如遇问题，请检查Windows版本兼容性
+
+项目地址: ${{ github.server_url }}/${{ github.repository }}
+"@
+        $versionInfo | Out-File -FilePath "release-package\VERSION.txt" -Encoding UTF8
+        
+        # 创建启动脚本
+        $launchScript = @"
+@echo off
+chcp 65001 >nul
+echo 🚀 启动 TPCG Collection Record...
+echo.
+if exist "tpcg_collection_record.exe" (
+    start "" "tpcg_collection_record.exe"
+) else (
+    echo ❌ 未找到应用程序文件！
+    pause
+)
+"@
+        $launchScript | Out-File -FilePath "release-package\启动应用.bat" -Encoding Default
+        
+        Write-Host "📦 发布包创建完成"
+      shell: pwsh
+      
+    - name: 📤 上传Windows构建产物
+      if: env.BUILD_SUCCESS == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: tpcg-collection-record-windows-${{ github.run_number }}
+        path: ./app/release-package/
+        retention-days: 30
+        compression-level: 6
+        
+    - name: 📤 上传构建日志
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-${{ github.run_number }}
+        path: |
+          ./app/build/
+          !./app/build/windows/x64/runner/Release/
+        retention-days: 7
+        
+    - name: 📝 创建Release (仅标签推送)
+      if: startsWith(github.ref, 'refs/tags/v') && env.BUILD_SUCCESS == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./app/release-package/*
+        name: TPCG Collection Record ${{ github.ref_name }}
+        body: |
+          ## 🪟 Windows版本发布
+          
+          ### 📊 构建信息
+          - **版本**: ${{ github.ref_name }}
+          - **构建时间**: ${{ steps.date.outputs.date }}
+          - **应用大小**: ${{ env.BUILD_SIZE }}
+          - **Flutter版本**: ${{ env.FLUTTER_VERSION }}
+          
+          ### 📦 安装说明
+          1. 下载 `tpcg-collection-record-windows-${{ github.run_number }}.zip`
+          2. 解压到任意目录
+          3. 双击 `tpcg_collection_record.exe` 运行
+          
+          ### ✨ 功能特性
+          - 🃏 卡片收藏管理
+          - 📁 项目分类组织
+          - 🖼️ 图片预览和缩放
+          - 📊 统计和分析
+          - 💾 本地数据存储
+          
+          ### 🔧 系统要求
+          - Windows 10 1903 或更高版本
+          - x64 架构处理器
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

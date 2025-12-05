@@ -1,0 +1,59 @@
+name: tpcg_collection_record
+description: A Pokemon Trading Card Game collection record app
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State management
+  provider: ^6.1.1
+  
+  # JSON serialization
+  json_annotation: ^4.8.1
+  freezed_annotation: ^2.4.1
+  
+  # Database
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  
+  # File picker for image selection
+  file_picker: ^6.1.1
+  
+  # Image handling
+  image: ^4.1.3
+  
+  # Path provider for app directory
+  path_provider: ^2.1.1
+  
+  # Date picker
+  flutter_datetime_picker_plus: ^2.1.0
+  
+  # Logging
+  logger: ^2.0.2+1
+  
+  # UI components
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Code generation
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
+  freezed: ^2.4.6
+  
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/

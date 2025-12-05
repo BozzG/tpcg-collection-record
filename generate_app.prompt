@@ -1,0 +1,90 @@
+使用flutter开发一个名为“tpcg_collection_record”的APP。
+
+要求使用MVVM架构。
+
+一、核心model有以下两个：
+class PTCGCard with _$PTCGCard {
+  const factory TPCGCard({
+    int? id, // 系统分配的id，可以为空
+    required int projectId, // 所属项目Id
+    required String name, // 卡片名字
+    required String issueNumber, // 卡片发行编号
+    required String issueDate, // 发行时间
+    required String grade, // 评级
+    required String acquiredDate, // 入手时间
+    required double acquiredPrice, // 入手价格
+    required double currentPrice, // 当前成交价
+    required String frontImage, // 正面图
+    required String backImage, // 背面图
+    required String gradeImage, // 评级图
+  }) = PTCGCard;
+
+  factory TPCGCard.fromJson(Map<String, dynamic> json) =>
+      _$PTCGCardFromJson(json);
+}
+
+class PTCGProject with _$PTCGProject {
+  const factory ProjectModel({
+    int? id, // 系统分配的id，可以为空
+    required String name, // 项目名字
+    required String description, // 项目描述
+    required List<PTCGCard> cards, // 卡片列表
+  }) = _PTCGProject;
+
+  factory ProjectModel.fromJson(Map<String, dynamic> json) =>
+      _$PTCGProjectFromJson(json);
+}
+
+二、包括以下页面（page）：
+1. 首页（home_page）：
+包括两部分，上半部分是收藏统计，包括“卡片数”、“项目数”、“总价值”、“总花费”；下半部分是最近添加的卡片列表。
+通过点击“卡片数”和“项目数”能分别导航到卡片列表页（card_list_page）和项目列表页（project_list_page）,点击最近添加的卡片导航到具体的卡片详情页（card_detail_page）。
+
+2. 卡片列表页（card_list_page）
+顶部有一个搜索栏，支持根据名字或编号搜索卡片。
+主体部分是已添加的卡片列表，每一行要求展示卡片的名字、编号、评级、入手时间和当前成交价，点击卡片导航到卡片详情页（card_detail_page）。支持在列表处调出“编辑”或“删除”卡片的操作，点击“编辑”导航到卡片编辑页（edit_card_page）。
+
+3. 卡片详情页（card_detail_page）
+展示卡片所有信息，若frontImage为空，则以默认图片展示，若backImage，gradeImage则不显示。
+
+4. 卡片编辑页（edit_card_page）和 5. 添加卡片页（add_card_page）根据需要设计即可，总体设计可以保持一致。
+
+6. 项目列表页（project_list_page）
+顶部有一个搜索栏，支持根据名字搜索项目。
+主题是已添加的项目列表，每一行要求展示项目的名称、含有卡片数和卡片的总价值（以当前成交价计算），点击项目导航到项目详情页（project_detail_page）。支持在列表处调出“编辑”或“删除”项目的操作，点击“编辑”导航到项目编辑页（edit_project_page）。
+右下角有一按钮，导航到添加项目页（add_project_page）
+
+7. 项目详情页（project_detail_page）
+展示项目所有信息，以及包含卡片的列表，包含卡片列表，每一行要求展示卡片的名字、编号、评级、入手时间和当前成交价，点击卡片导航到卡片详情页（card_detail_page）。支持在列表处调出“编辑”或“删除”卡片的操作，点击“编辑”导航到卡片编辑页（edit_card_page）。
+右下角有一按钮，导航到添加卡片页（add_card_page）
+
+8. 项目编辑页（edit_project_page）和 9. 添加项目页（add_project_page）根据需要设计即可，总体设计可以保持一致。
+
+三、核心操作（usercase）：
+1. 新增项目
+输入项目名字、描述创建项目，由数据库分配id。
+
+2. 编辑项目
+在页面中编辑已有项目的名字、描述。
+
+3. 删除项目
+删除项目数据、同时连带删除项目中包含的卡片数据。
+
+4. 新增卡片
+输入card的name、issueNumber、issueDate、grade、acquiredDate和acquiredPrice，projectId取项目详情页所属项目的id，currentPrice取acquiredPrice，frontImage，backImage，gradeImage通过上传图片所得，可选，没上传则为空。
+
+5. 编辑卡片
+重新编辑卡片的所有信息。
+
+6. 删除卡片
+删除卡片信息。
+
+四、其他要点
+1. 日期怎么选
+卡片的添加和编辑页面中，涉及日期的输入采用日历选择器实现。
+
+2. 图片处理流程
+卡片的添加和编辑过程中，图片上传根据各平台分别实现，masOS、web、windows应用调起文件管理器进行选择；ios和android则可以从相册或者文件中选择，不支持拍照。选择文件类型限制未图片类。选择图片文件后，将图片复制到应用的目录中生成一个副本，将其副本位置作为frontImage、backImage、gradeImage的取值。展示时根据这个路径展示图片。
+
+3. 评级类别
+PTCG评级包括PSA 1～PSA 10，BGS 1～BGS 9，BGS 9.5，BGS 10，BGS黑10，CGC 1～CGC 10，CGC 金10，CCIC 1～CCIC 9，CCIC 9.5，CCIC 银10，CCIC 金10。
