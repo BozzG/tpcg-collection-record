@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
+import 'package:tpcg_collection_record/models/ptcg_project.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
+import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/services/image_service.dart';
 import 'package:tpcg_collection_record/utils/grade_utils.dart';
 
@@ -30,6 +32,10 @@ class _EditCardPageState extends State<EditCardPage> {
   String? _frontImagePath;
   String? _backImagePath;
   String? _gradeImagePath;
+  
+  List<PTCGProject> _availableProjects = [];
+  int? _selectedProjectId;
+  bool _isLoadingProjects = true;
 
   bool get isEditing => widget.card != null;
 
@@ -38,6 +44,29 @@ class _EditCardPageState extends State<EditCardPage> {
     super.initState();
     if (isEditing) {
       _initializeWithCard(widget.card!);
+    } else if (widget.projectId != null) {
+      _selectedProjectId = widget.projectId;
+    }
+    
+    // 推迟到下一帧执行，避免在构建过程中调用setState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProjects();
+    });
+  }
+  
+  Future<void> _loadProjects() async {
+    final projectViewModel = context.read<ProjectViewModel>();
+    await projectViewModel.loadAllProjects();
+    if (mounted) {
+      setState(() {
+        _availableProjects = projectViewModel.projects;
+        _isLoadingProjects = false;
+        
+        // 如果是新建卡片且没有指定项目，选择第一个项目
+        if (!isEditing && _selectedProjectId == null && _availableProjects.isNotEmpty) {
+          _selectedProjectId = _availableProjects.first.id;
+        }
+      });
     }
   }
 
@@ -49,6 +78,7 @@ class _EditCardPageState extends State<EditCardPage> {
     _acquiredPriceController.text = card.acquiredPrice.toString();
     _currentPriceController.text = card.currentPrice.toString();
     _selectedGrade = card.grade;
+    _selectedProjectId = card.projectId;
     _frontImagePath = card.frontImage;
     _backImagePath = card.backImage;
     _gradeImagePath = card.gradeImage;
@@ -160,6 +190,35 @@ class _EditCardPageState extends State<EditCardPage> {
                 return null;
               },
             ),
+            const SizedBox(height: 16),
+            _isLoadingProjects
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<int>(
+                    initialValue: _selectedProjectId,
+                    decoration: const InputDecoration(
+                      labelText: '所属项目',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _availableProjects.map((PTCGProject project) {
+                      return DropdownMenuItem<int>(
+                        value: project.id,
+                        child: Text(project.name),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _selectedProjectId = newValue;
+                        });
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return '请选择所属项目';
+                      }
+                      return null;
+                    },
+                  ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _selectedGrade,
@@ -421,11 +480,18 @@ class _EditCardPageState extends State<EditCardPage> {
       return;
     }
 
+    if (_selectedProjectId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请选择所属项目')),
+      );
+      return;
+    }
+
     final cardViewModel = context.read<CardViewModel>();
 
     final card = PTCGCard(
       id: isEditing ? widget.card!.id : null,
-      projectId: isEditing ? widget.card!.projectId : widget.projectId!,
+      projectId: _selectedProjectId!,
       name: _nameController.text,
       issueNumber: _issueNumberController.text,
       issueDate: _issueDateController.text,

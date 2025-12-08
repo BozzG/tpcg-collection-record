@@ -16,21 +16,30 @@ class CardDetailPage extends StatefulWidget {
 
 class _CardDetailPageState extends State<CardDetailPage> {
   PTCGCard? card;
+  String? projectName;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadCard();
+    // 推迟到下一帧执行，避免在构建过程中调用setState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCard();
+    });
   }
 
   Future<void> _loadCard() async {
     final cardViewModel = context.read<CardViewModel>();
     final loadedCard = await cardViewModel.getCardById(widget.cardId);
-    setState(() {
-      card = loadedCard;
-      isLoading = false;
-    });
+    final loadedProjectName =
+        await cardViewModel.getProjectNameByCardId(widget.cardId);
+    if (mounted) {
+      setState(() {
+        card = loadedCard;
+        projectName = loadedProjectName;
+        isLoading = false;
+      });
+    }
   }
 
   /// 显示全屏图片预览
@@ -123,7 +132,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
       child: PageView(
         children: [
           // 正面图片
-          if (card!.backImage != null && card!.backImage!.isNotEmpty)
+          if (card!.frontImage != null && card!.frontImage!.isNotEmpty)
             _buildImageCard('正面', card!.frontImage!),
           if (card!.frontImage == null || card!.frontImage!.isEmpty)
             _buildPlaceholderCard('正面'),
@@ -375,6 +384,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
+              _buildInfoRow('所属项目', projectName ?? '未知项目'),
               _buildInfoRow('发行编号', card!.issueNumber),
               _buildInfoRow('发行时间', card!.issueDate),
               _buildInfoRow('评级', card!.grade),

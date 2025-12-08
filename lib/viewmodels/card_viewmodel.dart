@@ -72,6 +72,28 @@ class CardViewModel extends ChangeNotifier {
     }
   }
   
+  Future<String?> getProjectNameByCardId(int cardId) async {
+    try {
+      Log.debug('获取卡片所属项目名称: CardID=$cardId');
+      final card = await _databaseService.getCardById(cardId);
+      if (card != null) {
+        final project = await _databaseService.getProjectById(card.projectId);
+        if (project != null) {
+          Log.info('获取项目名称成功: ${project.name}');
+          return project.name;
+        } else {
+          Log.warning('未找到卡片所属项目: ProjectID=${card.projectId}');
+        }
+      } else {
+        Log.warning('未找到指定ID的卡片: $cardId');
+      }
+      return null;
+    } catch (e, stackTrace) {
+      Log.error('获取项目名称时发生错误: CardID=$cardId', e, stackTrace);
+      return null;
+    }
+  }
+  
   Future<bool> addCard(PTCGCard card) async {
     try {
       Log.info('添加新卡片: ${card.name}');
