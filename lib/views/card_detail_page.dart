@@ -16,30 +16,48 @@ class CardDetailPage extends StatefulWidget {
 
 class _CardDetailPageState extends State<CardDetailPage> {
   PTCGCard? card;
-  String? projectName;
   bool isLoading = true;
+  // 1. 添加 PageController 控制 PageView
+  late PageController _pageController;
+  // 用于记录当前页码（可选，用于箭头状态控制）
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    // 推迟到下一帧执行，避免在构建过程中调用setState
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadCard();
+    _loadCard();
+    // 初始化 PageController，默认从第0页开始
+    _pageController = PageController(initialPage: 0);
+  }
+
+  // 2. 监听页码变化（可选，用于后续扩展）
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 监听 PageView 页码变化，更新当前页码
+    _pageController.addListener(() {
+      if (_currentPage != _pageController.page?.round()) {
+        setState(() {
+          _currentPage = _pageController.page?.round() ?? 0;
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    // 3. 销毁 PageController，避免内存泄漏
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCard() async {
     final cardViewModel = context.read<CardViewModel>();
     final loadedCard = await cardViewModel.getCardById(widget.cardId);
-    final loadedProjectName =
-        await cardViewModel.getProjectNameByCardId(widget.cardId);
-    if (mounted) {
-      setState(() {
-        card = loadedCard;
-        projectName = loadedProjectName;
-        isLoading = false;
-      });
-    }
+    setState(() {
+      card = loadedCard;
+      isLoading = false;
+    });
   }
 
   /// 显示全屏图片预览
@@ -124,24 +142,103 @@ class _CardDetailPageState extends State<CardDetailPage> {
     );
   }
 
+  Widget _buildPageArrowButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.black54, // 半透明黑色，不遮挡图片内容
+          borderRadius: BorderRadius.circular(20), // 圆形按钮
+        ),
+        // 移除 Container 中的 mouseCursor
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+    );
+  }
+
   Widget _buildImageSection() {
+    // 先收集需要显示的图片页面（与原逻辑一致，避免重复代码）
+    final List<Widget> imagePages = [];
+    // 正面图片
+    if (card!.frontImage != null && card!.frontImage!.isNotEmpty) {
+      imagePages.add(_buildImageCard('正面', card!.frontImage!));
+    } else {
+      imagePages.add(_buildPlaceholderCard('正面'));
+    }
+    // 背面图片
+    if (card!.backImage != null && card!.backImage!.isNotEmpty) {
+      imagePages.add(_buildImageCard('背面', card!.backImage!));
+    }
+    // 评级图片
+    if (card!.gradeImage != null && card!.gradeImage!.isNotEmpty) {
+      imagePages.add(_buildImageCard('评级', card!.gradeImage!));
+    }
+
+    // 外层用 Stack 包裹：PageView + 左右箭头
     return Container(
       height: 300,
       width: double.infinity,
       color: Colors.grey[100],
-      child: PageView(
+      child: Stack(
         children: [
-          // 正面图片
-          if (card!.frontImage != null && card!.frontImage!.isNotEmpty)
-            _buildImageCard('正面', card!.frontImage!),
-          if (card!.frontImage == null || card!.frontImage!.isEmpty)
-            _buildPlaceholderCard('正面'),
-          // 背面图片
-          if (card!.backImage != null && card!.backImage!.isNotEmpty)
-            _buildImageCard('背面', card!.backImage!),
-          // 评级图片
-          if (card!.gradeImage != null && card!.gradeImage!.isNotEmpty)
-            _buildImageCard('评级', card!.gradeImage!),
+          // 1. PageView 核心组件（添加 controller 和 physics 优化 Windows 滑动）
+          PageView(
+            controller: _pageController,
+            // 优化 Windows 平台滑动体验：允许鼠标拖拽/触摸滑动
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            children: imagePages,
+          ),
+
+          // 2. 左侧箭头按钮（仅当有多个页面时显示）
+          if (imagePages.length > 1)
+            Positioned(
+              left: 10,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: _buildPageArrowButton(
+                  icon: Icons.chevron_left,
+                  onTap: () {
+                    // 跳转到上一页（带动画）
+                    _pageController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                ),
+              ),
+            ),
+
+          // 3. 右侧箭头按钮（仅当有多个页面时显示）
+          if (imagePages.length > 1)
+            Positioned(
+              right: 10,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: _buildPageArrowButton(
+                  icon: Icons.chevron_right,
+                  onTap: () {
+                    // 跳转到下一页（带动画）
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -384,7 +481,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              _buildInfoRow('所属项目', projectName ?? '未知项目'),
               _buildInfoRow('发行编号', card!.issueNumber),
               _buildInfoRow('发行时间', card!.issueDate),
               _buildInfoRow('评级', card!.grade),
