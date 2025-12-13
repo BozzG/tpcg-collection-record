@@ -21,6 +21,7 @@ dependencies:
   
   # Database
   sqflite: ^2.3.0
+  sqflite_common_ffi: ^2.3.0 # 关键：桌面平台依赖，版本需与sqflite兼容
   path: ^1.8.3
   
   # File picker for image selection

@@ -6,12 +6,22 @@ import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/views/home_page.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';
+import 'dart:io' show Platform;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize logging
   Log.info('应用启动中...');
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    // 1. 初始化sqflite_common_ffi的FFI环境（加载底层数据库驱动）
+    sqfliteFfiInit();
+    // 2. 设置全局数据库工厂为FFI版本，确保后续openDatabase能找到正确的实现
+    databaseFactory = databaseFactoryFfi;
+    Log.info('桌面平台：已初始化sqflite_common_ffi并设置databaseFactory');
+  }
 
   try {
     // Initialize database
