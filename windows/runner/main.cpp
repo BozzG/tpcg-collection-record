@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  Win32Window::Size size(300, 950);
+  Win32Window::Size size(500, 950);
   if (!window.Create(L"tpcg_collection_record", origin, size)) {
     return EXIT_FAILURE;
   }
