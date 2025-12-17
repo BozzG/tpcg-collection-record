@@ -108,11 +108,11 @@ class _AppInitializerState extends State<AppInitializer> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
               Text('正在初始化应用...'),
@@ -199,32 +199,32 @@ class _AppInitializerState extends State<AppInitializer> {
 
     // 数据库初始化成功，启动正常应用
     return MultiProvider(
-        providers: [
-          Provider<DatabaseService>.value(value: databaseService!),
-          ChangeNotifierProvider(
-            create: (context) => HomeViewModel(databaseService!),
+      providers: [
+        Provider<DatabaseService>.value(value: databaseService!),
+        ChangeNotifierProvider(
+          create: (context) => HomeViewModel(databaseService!),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CardViewModel(databaseService!),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ProjectViewModel(databaseService!),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'TPCG Collection Record',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.indigoAccent,
+            brightness: Brightness.dark,
           ),
-          ChangeNotifierProvider(
-            create: (context) => CardViewModel(databaseService!),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => ProjectViewModel(databaseService!),
-          ),
-        ],
-        child: MaterialApp(
-          title: 'TPCG Collection Record',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.indigoAccent,
-              brightness: Brightness.dark,
-            ),
-            useMaterial3: true,
-          ),
-          themeMode: ThemeMode.system,
+          useMaterial3: true,
+        ),
+        themeMode: ThemeMode.system,
         home: const HomePage(),
       ),
     );
