@@ -22,6 +22,7 @@ PTCGCard _$PTCGCardFromJson(Map<String, dynamic> json) {
 mixin _$PTCGCard {
   int? get id => throw _privateConstructorUsedError; // 系统分配的id，可以为空
   int get projectId => throw _privateConstructorUsedError; // 所属项目Id
+  int get pokedexNumber => throw _privateConstructorUsedError; // 宝可梦图鉴编号
   String get name => throw _privateConstructorUsedError; // 卡片名字
   String get issueNumber => throw _privateConstructorUsedError; // 卡片发行编号
   String get issueDate => throw _privateConstructorUsedError; // 发行时间
@@ -51,6 +52,7 @@ abstract class $PTCGCardCopyWith<$Res> {
   $Res call(
       {int? id,
       int projectId,
+      int pokedexNumber,
       String name,
       String issueNumber,
       String issueDate,
@@ -80,6 +82,7 @@ class _$PTCGCardCopyWithImpl<$Res, $Val extends PTCGCard>
   $Res call({
     Object? id = freezed,
     Object? projectId = null,
+    Object? pokedexNumber = null,
     Object? name = null,
     Object? issueNumber = null,
     Object? issueDate = null,
@@ -99,6 +102,10 @@ class _$PTCGCardCopyWithImpl<$Res, $Val extends PTCGCard>
       projectId: null == projectId
           ? _value.projectId
           : projectId // ignore: cast_nullable_to_non_nullable
+              as int,
+      pokedexNumber: null == pokedexNumber
+          ? _value.pokedexNumber
+          : pokedexNumber // ignore: cast_nullable_to_non_nullable
               as int,
       name: null == name
           ? _value.name
@@ -155,6 +162,7 @@ abstract class _$$PTCGCardImplCopyWith<$Res>
   $Res call(
       {int? id,
       int projectId,
+      int pokedexNumber,
       String name,
       String issueNumber,
       String issueDate,
@@ -182,6 +190,7 @@ class __$$PTCGCardImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? projectId = null,
+    Object? pokedexNumber = null,
     Object? name = null,
     Object? issueNumber = null,
     Object? issueDate = null,
@@ -201,6 +210,10 @@ class __$$PTCGCardImplCopyWithImpl<$Res>
       projectId: null == projectId
           ? _value.projectId
           : projectId // ignore: cast_nullable_to_non_nullable
+              as int,
+      pokedexNumber: null == pokedexNumber
+          ? _value.pokedexNumber
+          : pokedexNumber // ignore: cast_nullable_to_non_nullable
               as int,
       name: null == name
           ? _value.name
@@ -252,6 +265,7 @@ class _$PTCGCardImpl implements _PTCGCard {
   const _$PTCGCardImpl(
       {this.id,
       required this.projectId,
+      required this.pokedexNumber,
       required this.name,
       required this.issueNumber,
       required this.issueDate,
@@ -272,6 +286,9 @@ class _$PTCGCardImpl implements _PTCGCard {
   @override
   final int projectId;
 // 所属项目Id
+  @override
+  final int pokedexNumber;
+// 宝可梦图鉴编号
   @override
   final String name;
 // 卡片名字
@@ -304,7 +321,7 @@ class _$PTCGCardImpl implements _PTCGCard {
 
   @override
   String toString() {
-    return 'PTCGCard(id: $id, projectId: $projectId, name: $name, issueNumber: $issueNumber, issueDate: $issueDate, grade: $grade, acquiredDate: $acquiredDate, acquiredPrice: $acquiredPrice, currentPrice: $currentPrice, frontImage: $frontImage, backImage: $backImage, gradeImage: $gradeImage)';
+    return 'PTCGCard(id: $id, projectId: $projectId, pokedexNumber: $pokedexNumber, name: $name, issueNumber: $issueNumber, issueDate: $issueDate, grade: $grade, acquiredDate: $acquiredDate, acquiredPrice: $acquiredPrice, currentPrice: $currentPrice, frontImage: $frontImage, backImage: $backImage, gradeImage: $gradeImage)';
   }
 
   @override
@@ -315,6 +332,8 @@ class _$PTCGCardImpl implements _PTCGCard {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.projectId, projectId) ||
                 other.projectId == projectId) &&
+            (identical(other.pokedexNumber, pokedexNumber) ||
+                other.pokedexNumber == pokedexNumber) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.issueNumber, issueNumber) ||
                 other.issueNumber == issueNumber) &&
@@ -341,6 +360,7 @@ class _$PTCGCardImpl implements _PTCGCard {
       runtimeType,
       id,
       projectId,
+      pokedexNumber,
       name,
       issueNumber,
       issueDate,
@@ -372,6 +392,7 @@ abstract class _PTCGCard implements PTCGCard {
   const factory _PTCGCard(
       {final int? id,
       required final int projectId,
+      required final int pokedexNumber,
       required final String name,
       required final String issueNumber,
       required final String issueDate,
@@ -390,6 +411,8 @@ abstract class _PTCGCard implements PTCGCard {
   int? get id; // 系统分配的id，可以为空
   @override
   int get projectId; // 所属项目Id
+  @override
+  int get pokedexNumber; // 宝可梦图鉴编号
   @override
   String get name; // 卡片名字
   @override

@@ -10,6 +10,7 @@ _$PTCGCardImpl _$$PTCGCardImplFromJson(Map<String, dynamic> json) =>
     _$PTCGCardImpl(
       id: (json['id'] as num?)?.toInt(),
       projectId: (json['projectId'] as num).toInt(),
+      pokedexNumber: (json['pokedexNumber'] as num).toInt(),
       name: json['name'] as String,
       issueNumber: json['issueNumber'] as String,
       issueDate: json['issueDate'] as String,
@@ -26,6 +27,7 @@ Map<String, dynamic> _$$PTCGCardImplToJson(_$PTCGCardImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'projectId': instance.projectId,
+      'pokedexNumber': instance.pokedexNumber,
       'name': instance.name,
       'issueNumber': instance.issueNumber,
       'issueDate': instance.issueDate,

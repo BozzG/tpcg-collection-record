@@ -481,6 +481,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
+              _buildInfoRow('图鉴编号', '#${card!.pokedexNumber}'),
               _buildInfoRow('发行编号', card!.issueNumber),
               _buildInfoRow('发行时间', card!.issueDate),
               _buildInfoRow('评级', card!.grade),

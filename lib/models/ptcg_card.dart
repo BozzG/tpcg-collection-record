@@ -8,6 +8,7 @@ class PTCGCard with _$PTCGCard {
   const factory PTCGCard({
     int? id, // 系统分配的id，可以为空
     required int projectId, // 所属项目Id
+    required int pokedexNumber, // 宝可梦图鉴编号
     required String name, // 卡片名字
     required String issueNumber, // 卡片发行编号
     required String issueDate, // 发行时间

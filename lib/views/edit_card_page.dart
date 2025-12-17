@@ -22,6 +22,7 @@ class EditCardPage extends StatefulWidget {
 class _EditCardPageState extends State<EditCardPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _pokedexNumberController = TextEditingController();
   final _issueNumberController = TextEditingController();
   final _issueDateController = TextEditingController();
   final _acquiredDateController = TextEditingController();
@@ -32,7 +33,7 @@ class _EditCardPageState extends State<EditCardPage> {
   String? _frontImagePath;
   String? _backImagePath;
   String? _gradeImagePath;
-  
+
   List<PTCGProject> _availableProjects = [];
   int? _selectedProjectId;
   bool _isLoadingProjects = true;
@@ -47,13 +48,13 @@ class _EditCardPageState extends State<EditCardPage> {
     } else if (widget.projectId != null) {
       _selectedProjectId = widget.projectId;
     }
-    
+
     // 推迟到下一帧执行，避免在构建过程中调用setState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadProjects();
     });
   }
-  
+
   Future<void> _loadProjects() async {
     final projectViewModel = context.read<ProjectViewModel>();
     await projectViewModel.loadAllProjects();
@@ -61,9 +62,11 @@ class _EditCardPageState extends State<EditCardPage> {
       setState(() {
         _availableProjects = projectViewModel.projects;
         _isLoadingProjects = false;
-        
+
         // 如果是新建卡片且没有指定项目，选择第一个项目
-        if (!isEditing && _selectedProjectId == null && _availableProjects.isNotEmpty) {
+        if (!isEditing &&
+            _selectedProjectId == null &&
+            _availableProjects.isNotEmpty) {
           _selectedProjectId = _availableProjects.first.id;
         }
       });
@@ -72,6 +75,7 @@ class _EditCardPageState extends State<EditCardPage> {
 
   void _initializeWithCard(PTCGCard card) {
     _nameController.text = card.name;
+    _pokedexNumberController.text = card.pokedexNumber.toString();
     _issueNumberController.text = card.issueNumber;
     _issueDateController.text = card.issueDate;
     _acquiredDateController.text = card.acquiredDate;
@@ -87,6 +91,7 @@ class _EditCardPageState extends State<EditCardPage> {
   @override
   void dispose() {
     _nameController.dispose();
+    _pokedexNumberController.dispose();
     _issueNumberController.dispose();
     _issueDateController.dispose();
     _acquiredDateController.dispose();
@@ -155,6 +160,26 @@ class _EditCardPageState extends State<EditCardPage> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return '请输入卡片名称';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _pokedexNumberController,
+              decoration: const InputDecoration(
+                labelText: '图鉴编号',
+                border: OutlineInputBorder(),
+                hintText: '例如: 25 (皮卡丘)',
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '请输入宝可梦图鉴编号';
+                }
+                final number = int.tryParse(value);
+                if (number == null || number <= 0) {
+                  return '请输入有效的图鉴编号';
                 }
                 return null;
               },
@@ -492,6 +517,7 @@ class _EditCardPageState extends State<EditCardPage> {
     final card = PTCGCard(
       id: isEditing ? widget.card!.id : null,
       projectId: _selectedProjectId!,
+      pokedexNumber: int.parse(_pokedexNumberController.text),
       name: _nameController.text,
       issueNumber: _issueNumberController.text,
       issueDate: _issueDateController.text,

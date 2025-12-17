@@ -14,22 +14,34 @@ class ProjectViewModel extends ChangeNotifier {
   List<PTCGProject> _filteredProjects = [];
   bool _isLoading = false;
   String _searchQuery = '';
+  String? _errorMessage;
   
   List<PTCGProject> get projects => _filteredProjects;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
-  
+  String? get errorMessage => _errorMessage;
+
   Future<void> loadAllProjects() async {
     Log.debug('开始加载所有项目');
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
     
     try {
-      _projects = await _databaseService.getAllProjects();
+      // 添加超时保护
+      _projects = await _databaseService.getAllProjects().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('数据库查询超时（10秒）');
+        },
+      );
       _filteredProjects = List.from(_projects);
       Log.info('项目加载成功，总数: ${_projects.length}');
     } catch (e, stackTrace) {
       Log.error('加载项目时发生错误', e, stackTrace);
+      _errorMessage = '加载项目失败: ${e.toString()}';
+      _projects = [];
+      _filteredProjects = [];
     }
     
     _isLoading = false;

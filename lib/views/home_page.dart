@@ -247,7 +247,8 @@ class _HomePageState extends State<HomePage> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('编号: ${card.issueNumber}'),
+                      Text('图鉴编号: #${card.pokedexNumber}'),
+                      Text('发行编号: ${card.issueNumber}'),
                       Text('评级: ${card.grade}'),
                     ],
                   ),

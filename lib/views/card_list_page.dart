@@ -66,6 +66,29 @@ class _CardListPageState extends State<CardListPage> {
                 ),
               ),
               
+              // 排序提示
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.sort,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '按图鉴编号排序',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              
               // 卡片列表
               Expanded(
                 child: viewModel.isLoading
@@ -114,7 +137,8 @@ class _CardListPageState extends State<CardListPage> {
                                   subtitle: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('编号: ${card.issueNumber}'),
+                                      Text('图鉴编号: #${card.pokedexNumber}'),
+                                      Text('发行编号: ${card.issueNumber}'),
                                       Text('评级: ${card.grade}'),
                                       Text('入手时间: ${card.acquiredDate}'),
                                     ],

@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/models/ptcg_project.dart';
+import 'package:tpcg_collection_record/utils/logger.dart';
 
 class DatabaseService {
   static Database? _database;
@@ -15,44 +16,84 @@ class DatabaseService {
   }
 
   Future<Database> initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'tpcg_collection_test.db');
+    try {
+      Log.info('开始初始化数据库');
+      Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      String path = join(documentsDirectory.path, 'tpcg_collection.db');
+      Log.debug('数据库路径: $path');
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDatabase,
-    );
+      final db = await openDatabase(
+        path,
+        version: 2,
+        onCreate: _createDatabase,
+        onUpgrade: _upgradeDatabase,
+      );
+      
+      Log.info('数据库初始化成功');
+      return db;
+    } catch (e, stackTrace) {
+      Log.fatal('数据库初始化失败', e, stackTrace);
+      rethrow;
+    }
   }
 
   Future<void> _createDatabase(Database db, int version) async {
-    // 创建项目表
-    await db.execute('''
-      CREATE TABLE projects (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        description TEXT NOT NULL
-      )
-    ''');
+    try {
+      Log.info('创建数据库表结构，版本: $version');
+      
+      // 创建项目表
+      await db.execute('''
+        CREATE TABLE projects (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT NOT NULL
+        )
+      ''');
 
-    // 创建卡片表
-    await db.execute('''
-      CREATE TABLE cards (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        project_id INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        issue_number TEXT NOT NULL,
-        issue_date TEXT NOT NULL,
-        grade TEXT NOT NULL,
-        acquired_date TEXT NOT NULL,
-        acquired_price REAL NOT NULL,
-        current_price REAL NOT NULL,
-        front_image TEXT,
-        back_image TEXT,
-        grade_image TEXT,
-        FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
-      )
-    ''');
+      // 创建卡片表
+      await db.execute('''
+        CREATE TABLE cards (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL,
+          pokedex_number INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          issue_number TEXT NOT NULL,
+          issue_date TEXT NOT NULL,
+          grade TEXT NOT NULL,
+          acquired_date TEXT NOT NULL,
+          acquired_price REAL NOT NULL,
+          current_price REAL NOT NULL,
+          front_image TEXT,
+          back_image TEXT,
+          grade_image TEXT,
+          FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+        )
+      ''');
+      Log.info('数据库表结构创建完成');
+    } catch (e, stackTrace) {
+      Log.fatal('创建数据库表失败', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> _upgradeDatabase(
+      Database db, int oldVersion, int newVersion) async {
+    try {
+      Log.info('开始数据库升级: $oldVersion -> $newVersion');
+
+      if (oldVersion < 2) {
+        Log.debug('升级步骤1: 添加pokedex_number字段');
+        // 添加 pokedex_number 字段
+        await db.execute(
+            'ALTER TABLE cards ADD COLUMN pokedex_number INTEGER DEFAULT 0');
+        Log.debug('升级步骤2: pokedex_number字段添加成功');
+      }
+
+      Log.info('数据库升级完成');
+    } catch (e, stackTrace) {
+      Log.fatal('数据库升级失败', e, stackTrace);
+      rethrow;
+    }
   }
 
   // 项目相关操作
@@ -65,20 +106,31 @@ class DatabaseService {
   }
 
   Future<List<PTCGProject>> getAllProjects() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('projects');
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query('projects');
 
-    List<PTCGProject> projects = [];
-    for (var map in maps) {
-      final cards = await getCardsByProjectId(map['id']);
-      projects.add(PTCGProject(
-        id: map['id'],
-        name: map['name'],
-        description: map['description'],
-        cards: cards,
-      ));
+      List<PTCGProject> projects = [];
+      for (var map in maps) {
+        try {
+          final cards = await getCardsByProjectId(map['id']);
+          projects.add(PTCGProject(
+            id: map['id'],
+            name: map['name'],
+            description: map['description'],
+            cards: cards,
+          ));
+        } catch (e, stackTrace) {
+          Log.error('处理项目 ${map['name']} 时出错', e, stackTrace);
+          continue;
+        }
+      }
+      
+      return projects;
+    } catch (e, stackTrace) {
+      Log.error('查询所有项目时发生错误', e, stackTrace);
+      rethrow;
     }
-    return projects;
   }
 
   Future<PTCGProject?> getProjectById(int id) async {
@@ -147,6 +199,7 @@ class DatabaseService {
     final db = await database;
     return await db.insert('cards', {
       'project_id': card.projectId,
+      'pokedex_number': card.pokedexNumber,
       'name': card.name,
       'issue_number': card.issueNumber,
       'issue_date': card.issueDate,
@@ -162,12 +215,16 @@ class DatabaseService {
 
   Future<List<PTCGCard>> getAllCards() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('cards');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'cards',
+      orderBy: 'pokedex_number ASC', // 按图鉴编号升序排列
+    );
 
     return List.generate(maps.length, (i) {
       return PTCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
+        pokedexNumber: maps[i]['pokedex_number'],
         name: maps[i]['name'],
         issueNumber: maps[i]['issue_number'],
         issueDate: maps[i]['issue_date'],
@@ -188,12 +245,14 @@ class DatabaseService {
       'cards',
       where: 'project_id = ?',
       whereArgs: [projectId],
+      orderBy: 'pokedex_number ASC', // 按图鉴编号升序排列
     );
 
     return List.generate(maps.length, (i) {
       return PTCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
+        pokedexNumber: maps[i]['pokedex_number'],
         name: maps[i]['name'],
         issueNumber: maps[i]['issue_number'],
         issueDate: maps[i]['issue_date'],
@@ -221,6 +280,7 @@ class DatabaseService {
     return PTCGCard(
       id: maps.first['id'],
       projectId: maps.first['project_id'],
+      pokedexNumber: maps.first['pokedex_number'],
       name: maps.first['name'],
       issueNumber: maps.first['issue_number'],
       issueDate: maps.first['issue_date'],
@@ -240,6 +300,7 @@ class DatabaseService {
       'cards',
       {
         'project_id': card.projectId,
+        'pokedex_number': card.pokedexNumber,
         'name': card.name,
         'issue_number': card.issueNumber,
         'issue_date': card.issueDate,
@@ -273,6 +334,7 @@ class DatabaseService {
       return PTCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
+        pokedexNumber: maps[i]['pokedex_number'],
         name: maps[i]['name'],
         issueNumber: maps[i]['issue_number'],
         issueDate: maps[i]['issue_date'],
@@ -299,6 +361,7 @@ class DatabaseService {
       return PTCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
+        pokedexNumber: maps[i]['pokedex_number'],
         name: maps[i]['name'],
         issueNumber: maps[i]['issue_number'],
         issueDate: maps[i]['issue_date'],

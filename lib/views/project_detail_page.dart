@@ -143,11 +143,23 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   ),
                 ),
                 const Spacer(),
-                Text(
-                  '${project!.cards.length} 张卡片',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${project!.cards.length} 张卡片',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    Text(
+                      '按图鉴编号排序',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[500],
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -213,7 +225,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('编号: ${card.issueNumber}'),
+                              Text('图鉴编号: #${card.pokedexNumber}'),
+                              Text('发行编号: ${card.issueNumber}'),
                               Text('评级: ${card.grade}'),
                               Text('入手时间: ${card.acquiredDate}'),
                             ],
