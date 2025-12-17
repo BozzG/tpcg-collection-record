@@ -53,8 +53,8 @@ post_install do |installer|
       # 修复脚本执行权限
       config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
       
-      # 修复 arm64 模拟器问题
-      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      # 支持 Apple Silicon Mac 的 arm64 模拟器
+      # config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
     end
   end
 end

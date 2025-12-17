@@ -214,12 +214,13 @@ class _AppInitializerState extends State<AppInitializer> {
       child: MaterialApp(
         title: 'TPCG Collection Record',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 37, 35, 83)),
           useMaterial3: true,
         ),
         darkTheme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.indigoAccent,
+            seedColor: const Color.fromARGB(255, 37, 35, 83),
             brightness: Brightness.dark,
           ),
           useMaterial3: true,

@@ -27,6 +27,33 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('TPCG 收藏记录'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: '联系我',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('联系我'),
+                    content: const Text(
+                      '如果对这个APP有任何建议，请联系bozzguo@qq.com。',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('确定'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Consumer<HomeViewModel>(
@@ -49,9 +76,10 @@ class _HomePageState extends State<HomePage> {
 
                     // 最近添加的卡片
                     _buildRecentCardsSection(context, viewModel),
-                    
+
                     // 添加底部安全间距
-                    SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                    SizedBox(
+                        height: MediaQuery.of(context).padding.bottom + 16),
                   ],
                 ),
               ),
