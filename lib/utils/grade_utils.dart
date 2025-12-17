@@ -45,6 +45,8 @@ class GradeUtils {
     'CCIC 9.5',
     'CCIC 银10',
     'CCIC 金10',
+    '其他',
+    '未评级',
   ];
 
   static bool isValidGrade(String grade) {
