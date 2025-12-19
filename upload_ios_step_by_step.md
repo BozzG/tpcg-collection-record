@@ -46,9 +46,9 @@ open ios/Runner.xcworkspace
 1. 登录 [App Store Connect](https://appstoreconnect.apple.com)
 2. 点击 "我的 App" → "+" → "新建 App"
 3. 填写应用信息：
-   - **名称**：TPCG Collection Record
+   - **名称**：PTCG Collection Record
    - **Bundle ID**：选择在 Xcode 中配置的 Bundle Identifier
-   - **SKU**：唯一标识符（如：tpcg-collection-record-2024）
+   - **SKU**：唯一标识符（如：ptcg-collection-record-2025）
    - **用户访问权限**：完全访问权限
 
 #### 2. 配置应用元数据
