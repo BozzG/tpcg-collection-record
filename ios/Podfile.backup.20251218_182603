@@ -62,7 +62,6 @@ post_install do |installer|
       if target.name.downcase.include?('sqlite') || target.name.downcase.include?('fmdb')
         config.build_settings['GENERATE_DSYM'] = 'YES'
         config.build_settings['DWARF_DSYM_FOLDER_PATH'] = '$(CONFIGURATION_BUILD_DIR)'
-        puts "🔧 配置 dSYM 生成: #{target.name}"
       end
       
       # 支持 Apple Silicon Mac 的 arm64 模拟器
