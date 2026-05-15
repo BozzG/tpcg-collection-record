@@ -4,11 +4,11 @@ part 'ptcg_card.freezed.dart';
 part 'ptcg_card.g.dart';
 
 @freezed
-class PTCGCard with _$PTCGCard {
-  const factory PTCGCard({
+class TCGCard with _$TCGCard {
+  const factory TCGCard({
     int? id, // 系统分配的id，可以为空
     required int projectId, // 所属项目Id
-    required int pokedexNumber, // 宝可梦图鉴编号
+    required int pokedexNumber, // 卡片编号
     required String name, // 卡片名字
     required String issueNumber, // 卡片发行编号
     required String issueDate, // 发行时间
@@ -19,8 +19,8 @@ class PTCGCard with _$PTCGCard {
     String? frontImage, // 正面图
     String? backImage, // 背面图
     String? gradeImage, // 评级图
-  }) = _PTCGCard;
+  }) = _TCGCard;
 
-  factory PTCGCard.fromJson(Map<String, dynamic> json) =>
-      _$PTCGCardFromJson(json);
+  factory TCGCard.fromJson(Map<String, dynamic> json) =>
+      _$TCGCardFromJson(json);
 }

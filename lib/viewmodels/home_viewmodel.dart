@@ -16,14 +16,14 @@ class HomeViewModel extends ChangeNotifier {
   int _projectCount = 0;
   double _totalValue = 0.0;
   double _totalCost = 0.0;
-  List<PTCGCard> _recentCards = [];
+  List<TCGCard> _recentCards = [];
   bool _isLoading = false;
   
   int get cardCount => _cardCount;
   int get projectCount => _projectCount;
   double get totalValue => _totalValue;
   double get totalCost => _totalCost;
-  List<PTCGCard> get recentCards => _recentCards;
+  List<TCGCard> get recentCards => _recentCards;
   bool get isLoading => _isLoading;
   
   Future<void> loadStatistics() async {

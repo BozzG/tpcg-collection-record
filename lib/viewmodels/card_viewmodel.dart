@@ -10,12 +10,12 @@ class CardViewModel extends ChangeNotifier {
     Log.info('初始化卡片ViewModel');
   }
   
-  List<PTCGCard> _cards = [];
-  List<PTCGCard> _filteredCards = [];
+  List<TCGCard> _cards = [];
+  List<TCGCard> _filteredCards = [];
   bool _isLoading = false;
   String _searchQuery = '';
   
-  List<PTCGCard> get cards => _filteredCards;
+  List<TCGCard> get cards => _filteredCards;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
   
@@ -56,7 +56,7 @@ class CardViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
-  Future<PTCGCard?> getCardById(int id) async {
+  Future<TCGCard?> getCardById(int id) async {
     try {
       Log.debug('获取卡片详情: ID=$id');
       final card = await _databaseService.getCardById(id);
@@ -94,7 +94,7 @@ class CardViewModel extends ChangeNotifier {
     }
   }
   
-  Future<bool> addCard(PTCGCard card) async {
+  Future<bool> addCard(TCGCard card) async {
     try {
       Log.info('添加新卡片: ${card.name}');
       await _databaseService.insertCard(card);
@@ -107,7 +107,7 @@ class CardViewModel extends ChangeNotifier {
     }
   }
   
-  Future<bool> updateCard(PTCGCard card) async {
+  Future<bool> updateCard(TCGCard card) async {
     try {
       Log.info('更新卡片: ${card.name} (ID=${card.id})');
       await _databaseService.updateCard(card);

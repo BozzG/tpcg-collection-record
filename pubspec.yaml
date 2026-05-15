@@ -1,9 +1,9 @@
 name: tpcg_collection_record
-description: A Pokemon Trading Card Game collection record app
+description: A Trading Card Collection Management App
 
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+11
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -25,7 +25,7 @@ dependencies:
   path: ^1.8.3
   
   # File picker for image selection
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0+1
   
   # Image handling
   image: ^4.1.3

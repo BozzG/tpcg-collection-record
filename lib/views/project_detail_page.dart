@@ -18,7 +18,7 @@ class ProjectDetailPage extends StatefulWidget {
 }
 
 class _ProjectDetailPageState extends State<ProjectDetailPage> {
-  PTCGProject? project;
+  TCGProject? project;
   bool isLoading = true;
 
   @override

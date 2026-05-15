@@ -4,7 +4,7 @@ import 'package:tpcg_collection_record/models/ptcg_project.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 
 class EditProjectPage extends StatefulWidget {
-  final PTCGProject? project;
+  final TCGProject? project;
 
   const EditProjectPage({super.key, this.project});
 
@@ -148,7 +148,7 @@ class _EditProjectPageState extends State<EditProjectPage> {
 
     final projectViewModel = context.read<ProjectViewModel>();
 
-    final project = PTCGProject(
+    final project = TCGProject(
       id: isEditing ? widget.project!.id : null,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),

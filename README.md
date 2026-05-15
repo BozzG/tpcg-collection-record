@@ -1,6 +1,6 @@
 # TPCG Collection Record
 
-一个用于记录宝可梦卡牌收藏的Flutter应用。
+一个用于记录集换式卡牌收藏的Flutter应用。
 
 ## 功能特性
 

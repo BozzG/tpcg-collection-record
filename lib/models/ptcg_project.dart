@@ -5,14 +5,14 @@ part 'ptcg_project.freezed.dart';
 part 'ptcg_project.g.dart';
 
 @freezed
-class PTCGProject with _$PTCGProject {
-  const factory PTCGProject({
+class TCGProject with _$TCGProject {
+  const factory TCGProject({
     int? id, // 系统分配的id，可以为空
     required String name, // 项目名字
     required String description, // 项目描述
-    @Default([]) List<PTCGCard> cards, // 卡片列表
-  }) = _PTCGProject;
+    @Default([]) List<TCGCard> cards, // 卡片列表
+  }) = _TCGProject;
 
-  factory PTCGProject.fromJson(Map<String, dynamic> json) =>
-      _$PTCGProjectFromJson(json);
+  factory TCGProject.fromJson(Map<String, dynamic> json) =>
+      _$TCGProjectFromJson(json);
 }

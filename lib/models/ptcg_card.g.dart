@@ -6,8 +6,8 @@ part of 'ptcg_card.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PTCGCardImpl _$$PTCGCardImplFromJson(Map<String, dynamic> json) =>
-    _$PTCGCardImpl(
+_$TCGCardImpl _$$TCGCardImplFromJson(Map<String, dynamic> json) =>
+    _$TCGCardImpl(
       id: (json['id'] as num?)?.toInt(),
       projectId: (json['projectId'] as num).toInt(),
       pokedexNumber: (json['pokedexNumber'] as num).toInt(),
@@ -23,7 +23,7 @@ _$PTCGCardImpl _$$PTCGCardImplFromJson(Map<String, dynamic> json) =>
       gradeImage: json['gradeImage'] as String?,
     );
 
-Map<String, dynamic> _$$PTCGCardImplToJson(_$PTCGCardImpl instance) =>
+Map<String, dynamic> _$$TCGCardImplToJson(_$TCGCardImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'projectId': instance.projectId,

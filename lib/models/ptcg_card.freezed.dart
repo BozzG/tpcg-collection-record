@@ -14,15 +14,15 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-PTCGCard _$PTCGCardFromJson(Map<String, dynamic> json) {
-  return _PTCGCard.fromJson(json);
+TCGCard _$TCGCardFromJson(Map<String, dynamic> json) {
+  return _TCGCard.fromJson(json);
 }
 
 /// @nodoc
-mixin _$PTCGCard {
+mixin _$TCGCard {
   int? get id => throw _privateConstructorUsedError; // 系统分配的id，可以为空
   int get projectId => throw _privateConstructorUsedError; // 所属项目Id
-  int get pokedexNumber => throw _privateConstructorUsedError; // 宝可梦图鉴编号
+  int get pokedexNumber => throw _privateConstructorUsedError; // 卡片编号
   String get name => throw _privateConstructorUsedError; // 卡片名字
   String get issueNumber => throw _privateConstructorUsedError; // 卡片发行编号
   String get issueDate => throw _privateConstructorUsedError; // 发行时间
@@ -34,20 +34,20 @@ mixin _$PTCGCard {
   String? get backImage => throw _privateConstructorUsedError; // 背面图
   String? get gradeImage => throw _privateConstructorUsedError;
 
-  /// Serializes this PTCGCard to a JSON map.
+  /// Serializes this TCGCard to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of PTCGCard
+  /// Create a copy of TCGCard
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $PTCGCardCopyWith<PTCGCard> get copyWith =>
+  $TCGCardCopyWith<TCGCard> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $PTCGCardCopyWith<$Res> {
-  factory $PTCGCardCopyWith(PTCGCard value, $Res Function(PTCGCard) then) =
-      _$PTCGCardCopyWithImpl<$Res, PTCGCard>;
+abstract class $TCGCardCopyWith<$Res> {
+  factory $TCGCardCopyWith(TCGCard value, $Res Function(TCGCard) then) =
+      _$TCGCardCopyWithImpl<$Res, TCGCard>;
   @useResult
   $Res call(
       {int? id,
@@ -66,16 +66,16 @@ abstract class $PTCGCardCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$PTCGCardCopyWithImpl<$Res, $Val extends PTCGCard>
-    implements $PTCGCardCopyWith<$Res> {
-  _$PTCGCardCopyWithImpl(this._value, this._then);
+class _$TCGCardCopyWithImpl<$Res, $Val extends TCGCard>
+    implements $TCGCardCopyWith<$Res> {
+  _$TCGCardCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PTCGCard
+  /// Create a copy of TCGCard
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -152,11 +152,11 @@ class _$PTCGCardCopyWithImpl<$Res, $Val extends PTCGCard>
 }
 
 /// @nodoc
-abstract class _$$PTCGCardImplCopyWith<$Res>
-    implements $PTCGCardCopyWith<$Res> {
-  factory _$$PTCGCardImplCopyWith(
-          _$PTCGCardImpl value, $Res Function(_$PTCGCardImpl) then) =
-      __$$PTCGCardImplCopyWithImpl<$Res>;
+abstract class _$$TCGCardImplCopyWith<$Res>
+    implements $TCGCardCopyWith<$Res> {
+  factory _$$TCGCardImplCopyWith(
+          _$TCGCardImpl value, $Res Function(_$TCGCardImpl) then) =
+      __$$TCGCardImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -176,14 +176,14 @@ abstract class _$$PTCGCardImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$PTCGCardImplCopyWithImpl<$Res>
-    extends _$PTCGCardCopyWithImpl<$Res, _$PTCGCardImpl>
-    implements _$$PTCGCardImplCopyWith<$Res> {
-  __$$PTCGCardImplCopyWithImpl(
-      _$PTCGCardImpl _value, $Res Function(_$PTCGCardImpl) _then)
+class __$$TCGCardImplCopyWithImpl<$Res>
+    extends _$TCGCardCopyWithImpl<$Res, _$TCGCardImpl>
+    implements _$$TCGCardImplCopyWith<$Res> {
+  __$$TCGCardImplCopyWithImpl(
+      _$TCGCardImpl _value, $Res Function(_$TCGCardImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PTCGCard
+  /// Create a copy of TCGCard
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -202,7 +202,7 @@ class __$$PTCGCardImplCopyWithImpl<$Res>
     Object? backImage = freezed,
     Object? gradeImage = freezed,
   }) {
-    return _then(_$PTCGCardImpl(
+    return _then(_$TCGCardImpl(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -261,8 +261,8 @@ class __$$PTCGCardImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$PTCGCardImpl implements _PTCGCard {
-  const _$PTCGCardImpl(
+class _$TCGCardImpl implements _TCGCard {
+  const _$TCGCardImpl(
       {this.id,
       required this.projectId,
       required this.pokedexNumber,
@@ -277,8 +277,8 @@ class _$PTCGCardImpl implements _PTCGCard {
       this.backImage,
       this.gradeImage});
 
-  factory _$PTCGCardImpl.fromJson(Map<String, dynamic> json) =>
-      _$$PTCGCardImplFromJson(json);
+  factory _$TCGCardImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TCGCardImplFromJson(json);
 
   @override
   final int? id;
@@ -288,7 +288,7 @@ class _$PTCGCardImpl implements _PTCGCard {
 // 所属项目Id
   @override
   final int pokedexNumber;
-// 宝可梦图鉴编号
+// 卡片编号
   @override
   final String name;
 // 卡片名字
@@ -321,14 +321,14 @@ class _$PTCGCardImpl implements _PTCGCard {
 
   @override
   String toString() {
-    return 'PTCGCard(id: $id, projectId: $projectId, pokedexNumber: $pokedexNumber, name: $name, issueNumber: $issueNumber, issueDate: $issueDate, grade: $grade, acquiredDate: $acquiredDate, acquiredPrice: $acquiredPrice, currentPrice: $currentPrice, frontImage: $frontImage, backImage: $backImage, gradeImage: $gradeImage)';
+    return 'TCGCard(id: $id, projectId: $projectId, pokedexNumber: $pokedexNumber, name: $name, issueNumber: $issueNumber, issueDate: $issueDate, grade: $grade, acquiredDate: $acquiredDate, acquiredPrice: $acquiredPrice, currentPrice: $currentPrice, frontImage: $frontImage, backImage: $backImage, gradeImage: $gradeImage)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$PTCGCardImpl &&
+            other is _$TCGCardImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.projectId, projectId) ||
                 other.projectId == projectId) &&
@@ -372,24 +372,24 @@ class _$PTCGCardImpl implements _PTCGCard {
       backImage,
       gradeImage);
 
-  /// Create a copy of PTCGCard
+  /// Create a copy of TCGCard
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$PTCGCardImplCopyWith<_$PTCGCardImpl> get copyWith =>
-      __$$PTCGCardImplCopyWithImpl<_$PTCGCardImpl>(this, _$identity);
+  _$$TCGCardImplCopyWith<_$TCGCardImpl> get copyWith =>
+      __$$TCGCardImplCopyWithImpl<_$TCGCardImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$PTCGCardImplToJson(
+    return _$$TCGCardImplToJson(
       this,
     );
   }
 }
 
-abstract class _PTCGCard implements PTCGCard {
-  const factory _PTCGCard(
+abstract class _TCGCard implements TCGCard {
+  const factory _TCGCard(
       {final int? id,
       required final int projectId,
       required final int pokedexNumber,
@@ -402,17 +402,17 @@ abstract class _PTCGCard implements PTCGCard {
       required final double currentPrice,
       final String? frontImage,
       final String? backImage,
-      final String? gradeImage}) = _$PTCGCardImpl;
+      final String? gradeImage}) = _$TCGCardImpl;
 
-  factory _PTCGCard.fromJson(Map<String, dynamic> json) =
-      _$PTCGCardImpl.fromJson;
+  factory _TCGCard.fromJson(Map<String, dynamic> json) =
+      _$TCGCardImpl.fromJson;
 
   @override
   int? get id; // 系统分配的id，可以为空
   @override
   int get projectId; // 所属项目Id
   @override
-  int get pokedexNumber; // 宝可梦图鉴编号
+  int get pokedexNumber; // 卡片编号
   @override
   String get name; // 卡片名字
   @override
@@ -434,10 +434,10 @@ abstract class _PTCGCard implements PTCGCard {
   @override
   String? get gradeImage;
 
-  /// Create a copy of PTCGCard
+  /// Create a copy of TCGCard
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PTCGCardImplCopyWith<_$PTCGCardImpl> get copyWith =>
+  _$$TCGCardImplCopyWith<_$TCGCardImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

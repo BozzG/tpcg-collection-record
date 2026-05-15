@@ -10,13 +10,13 @@ class ProjectViewModel extends ChangeNotifier {
     Log.info('初始化项目ViewModel');
   }
   
-  List<PTCGProject> _projects = [];
-  List<PTCGProject> _filteredProjects = [];
+  List<TCGProject> _projects = [];
+  List<TCGProject> _filteredProjects = [];
   bool _isLoading = false;
   String _searchQuery = '';
   String? _errorMessage;
   
-  List<PTCGProject> get projects => _filteredProjects;
+  List<TCGProject> get projects => _filteredProjects;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
   String? get errorMessage => _errorMessage;
@@ -68,7 +68,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
-  Future<PTCGProject?> getProjectById(int id) async {
+  Future<TCGProject?> getProjectById(int id) async {
     try {
       Log.debug('获取项目详情: ID=$id');
       final project = await _databaseService.getProjectById(id);
@@ -84,7 +84,7 @@ class ProjectViewModel extends ChangeNotifier {
     }
   }
   
-  Future<bool> addProject(PTCGProject project) async {
+  Future<bool> addProject(TCGProject project) async {
     try {
       Log.info('添加新项目: ${project.name}');
       await _databaseService.insertProject(project);
@@ -97,7 +97,7 @@ class ProjectViewModel extends ChangeNotifier {
     }
   }
   
-  Future<bool> updateProject(PTCGProject project) async {
+  Future<bool> updateProject(TCGProject project) async {
     try {
       Log.info('更新项目: ${project.name} (ID=${project.id})');
       await _databaseService.updateProject(project);
@@ -130,7 +130,7 @@ class ProjectViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
-  double getProjectTotalValue(PTCGProject project) {
+  double getProjectTotalValue(TCGProject project) {
     final totalValue = project.cards.fold(0.0, (sum, card) => sum + card.currentPrice);
     Log.debug('计算项目总价值: ${project.name} = ¥${totalValue.toStringAsFixed(2)}');
     return totalValue;

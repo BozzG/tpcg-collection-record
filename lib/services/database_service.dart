@@ -97,7 +97,7 @@ class DatabaseService {
   }
 
   // 项目相关操作
-  Future<int> insertProject(PTCGProject project) async {
+  Future<int> insertProject(TCGProject project) async {
     final db = await database;
     return await db.insert('projects', {
       'name': project.name,
@@ -105,16 +105,16 @@ class DatabaseService {
     });
   }
 
-  Future<List<PTCGProject>> getAllProjects() async {
+  Future<List<TCGProject>> getAllProjects() async {
     try {
       final db = await database;
       final List<Map<String, dynamic>> maps = await db.query('projects');
 
-      List<PTCGProject> projects = [];
+      List<TCGProject> projects = [];
       for (var map in maps) {
         try {
           final cards = await getCardsByProjectId(map['id']);
-          projects.add(PTCGProject(
+          projects.add(TCGProject(
             id: map['id'],
             name: map['name'],
             description: map['description'],
@@ -133,7 +133,7 @@ class DatabaseService {
     }
   }
 
-  Future<PTCGProject?> getProjectById(int id) async {
+  Future<TCGProject?> getProjectById(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'projects',
@@ -144,7 +144,7 @@ class DatabaseService {
     if (maps.isEmpty) return null;
 
     final cards = await getCardsByProjectId(id);
-    return PTCGProject(
+    return TCGProject(
       id: maps.first['id'],
       name: maps.first['name'],
       description: maps.first['description'],
@@ -152,7 +152,7 @@ class DatabaseService {
     );
   }
 
-  Future<int> updateProject(PTCGProject project) async {
+  Future<int> updateProject(TCGProject project) async {
     final db = await database;
     return await db.update(
       'projects',
@@ -173,7 +173,7 @@ class DatabaseService {
     return await db.delete('projects', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<List<PTCGProject>> searchProjects(String query) async {
+  Future<List<TCGProject>> searchProjects(String query) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'projects',
@@ -181,10 +181,10 @@ class DatabaseService {
       whereArgs: ['%$query%'],
     );
 
-    List<PTCGProject> projects = [];
+    List<TCGProject> projects = [];
     for (var map in maps) {
       final cards = await getCardsByProjectId(map['id']);
-      projects.add(PTCGProject(
+      projects.add(TCGProject(
         id: map['id'],
         name: map['name'],
         description: map['description'],
@@ -195,7 +195,7 @@ class DatabaseService {
   }
 
   // 卡片相关操作
-  Future<int> insertCard(PTCGCard card) async {
+  Future<int> insertCard(TCGCard card) async {
     final db = await database;
     return await db.insert('cards', {
       'project_id': card.projectId,
@@ -213,7 +213,7 @@ class DatabaseService {
     });
   }
 
-  Future<List<PTCGCard>> getAllCards() async {
+  Future<List<TCGCard>> getAllCards() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'cards',
@@ -221,7 +221,7 @@ class DatabaseService {
     );
 
     return List.generate(maps.length, (i) {
-      return PTCGCard(
+      return TCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
         pokedexNumber: maps[i]['pokedex_number'],
@@ -239,7 +239,7 @@ class DatabaseService {
     });
   }
 
-  Future<List<PTCGCard>> getCardsByProjectId(int projectId) async {
+  Future<List<TCGCard>> getCardsByProjectId(int projectId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'cards',
@@ -249,7 +249,7 @@ class DatabaseService {
     );
 
     return List.generate(maps.length, (i) {
-      return PTCGCard(
+      return TCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
         pokedexNumber: maps[i]['pokedex_number'],
@@ -267,7 +267,7 @@ class DatabaseService {
     });
   }
 
-  Future<PTCGCard?> getCardById(int id) async {
+  Future<TCGCard?> getCardById(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'cards',
@@ -277,7 +277,7 @@ class DatabaseService {
 
     if (maps.isEmpty) return null;
 
-    return PTCGCard(
+    return TCGCard(
       id: maps.first['id'],
       projectId: maps.first['project_id'],
       pokedexNumber: maps.first['pokedex_number'],
@@ -294,7 +294,7 @@ class DatabaseService {
     );
   }
 
-  Future<int> updateCard(PTCGCard card) async {
+  Future<int> updateCard(TCGCard card) async {
     final db = await database;
     return await db.update(
       'cards',
@@ -322,7 +322,7 @@ class DatabaseService {
     return await db.delete('cards', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<List<PTCGCard>> searchCards(String query) async {
+  Future<List<TCGCard>> searchCards(String query) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'cards',
@@ -331,7 +331,7 @@ class DatabaseService {
     );
 
     return List.generate(maps.length, (i) {
-      return PTCGCard(
+      return TCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
         pokedexNumber: maps[i]['pokedex_number'],
@@ -349,7 +349,7 @@ class DatabaseService {
     });
   }
 
-  Future<List<PTCGCard>> getRecentCards({int limit = 10}) async {
+  Future<List<TCGCard>> getRecentCards({int limit = 10}) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'cards',
@@ -358,7 +358,7 @@ class DatabaseService {
     );
 
     return List.generate(maps.length, (i) {
-      return PTCGCard(
+      return TCGCard(
         id: maps[i]['id'],
         projectId: maps[i]['project_id'],
         pokedexNumber: maps[i]['pokedex_number'],

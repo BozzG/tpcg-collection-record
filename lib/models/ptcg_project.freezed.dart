@@ -14,47 +14,47 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-PTCGProject _$PTCGProjectFromJson(Map<String, dynamic> json) {
-  return _PTCGProject.fromJson(json);
+TCGProject _$TCGProjectFromJson(Map<String, dynamic> json) {
+  return _TCGProject.fromJson(json);
 }
 
 /// @nodoc
-mixin _$PTCGProject {
+mixin _$TCGProject {
   int? get id => throw _privateConstructorUsedError; // 系统分配的id，可以为空
   String get name => throw _privateConstructorUsedError; // 项目名字
   String get description => throw _privateConstructorUsedError; // 项目描述
-  List<PTCGCard> get cards => throw _privateConstructorUsedError;
+  List<TCGCard> get cards => throw _privateConstructorUsedError;
 
-  /// Serializes this PTCGProject to a JSON map.
+  /// Serializes this TCGProject to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of PTCGProject
+  /// Create a copy of TCGProject
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $PTCGProjectCopyWith<PTCGProject> get copyWith =>
+  $TCGProjectCopyWith<TCGProject> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $PTCGProjectCopyWith<$Res> {
-  factory $PTCGProjectCopyWith(
-          PTCGProject value, $Res Function(PTCGProject) then) =
-      _$PTCGProjectCopyWithImpl<$Res, PTCGProject>;
+abstract class $TCGProjectCopyWith<$Res> {
+  factory $TCGProjectCopyWith(
+          TCGProject value, $Res Function(TCGProject) then) =
+      _$TCGProjectCopyWithImpl<$Res, TCGProject>;
   @useResult
-  $Res call({int? id, String name, String description, List<PTCGCard> cards});
+  $Res call({int? id, String name, String description, List<TCGCard> cards});
 }
 
 /// @nodoc
-class _$PTCGProjectCopyWithImpl<$Res, $Val extends PTCGProject>
-    implements $PTCGProjectCopyWith<$Res> {
-  _$PTCGProjectCopyWithImpl(this._value, this._then);
+class _$TCGProjectCopyWithImpl<$Res, $Val extends TCGProject>
+    implements $TCGProjectCopyWith<$Res> {
+  _$TCGProjectCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PTCGProject
+  /// Create a copy of TCGProject
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -80,31 +80,31 @@ class _$PTCGProjectCopyWithImpl<$Res, $Val extends PTCGProject>
       cards: null == cards
           ? _value.cards
           : cards // ignore: cast_nullable_to_non_nullable
-              as List<PTCGCard>,
+              as List<TCGCard>,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$PTCGProjectImplCopyWith<$Res>
-    implements $PTCGProjectCopyWith<$Res> {
-  factory _$$PTCGProjectImplCopyWith(
-          _$PTCGProjectImpl value, $Res Function(_$PTCGProjectImpl) then) =
-      __$$PTCGProjectImplCopyWithImpl<$Res>;
+abstract class _$$TCGProjectImplCopyWith<$Res>
+    implements $TCGProjectCopyWith<$Res> {
+  factory _$$TCGProjectImplCopyWith(
+          _$TCGProjectImpl value, $Res Function(_$TCGProjectImpl) then) =
+      __$$TCGProjectImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int? id, String name, String description, List<PTCGCard> cards});
+  $Res call({int? id, String name, String description, List<TCGCard> cards});
 }
 
 /// @nodoc
-class __$$PTCGProjectImplCopyWithImpl<$Res>
-    extends _$PTCGProjectCopyWithImpl<$Res, _$PTCGProjectImpl>
-    implements _$$PTCGProjectImplCopyWith<$Res> {
-  __$$PTCGProjectImplCopyWithImpl(
-      _$PTCGProjectImpl _value, $Res Function(_$PTCGProjectImpl) _then)
+class __$$TCGProjectImplCopyWithImpl<$Res>
+    extends _$TCGProjectCopyWithImpl<$Res, _$TCGProjectImpl>
+    implements _$$TCGProjectImplCopyWith<$Res> {
+  __$$TCGProjectImplCopyWithImpl(
+      _$TCGProjectImpl _value, $Res Function(_$TCGProjectImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PTCGProject
+  /// Create a copy of TCGProject
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -114,7 +114,7 @@ class __$$PTCGProjectImplCopyWithImpl<$Res>
     Object? description = null,
     Object? cards = null,
   }) {
-    return _then(_$PTCGProjectImpl(
+    return _then(_$TCGProjectImpl(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -130,23 +130,23 @@ class __$$PTCGProjectImplCopyWithImpl<$Res>
       cards: null == cards
           ? _value._cards
           : cards // ignore: cast_nullable_to_non_nullable
-              as List<PTCGCard>,
+              as List<TCGCard>,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$PTCGProjectImpl implements _PTCGProject {
-  const _$PTCGProjectImpl(
+class _$TCGProjectImpl implements _TCGProject {
+  const _$TCGProjectImpl(
       {this.id,
       required this.name,
       required this.description,
-      final List<PTCGCard> cards = const []})
+      final List<TCGCard> cards = const []})
       : _cards = cards;
 
-  factory _$PTCGProjectImpl.fromJson(Map<String, dynamic> json) =>
-      _$$PTCGProjectImplFromJson(json);
+  factory _$TCGProjectImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TCGProjectImplFromJson(json);
 
   @override
   final int? id;
@@ -157,11 +157,11 @@ class _$PTCGProjectImpl implements _PTCGProject {
   @override
   final String description;
 // 项目描述
-  final List<PTCGCard> _cards;
+  final List<TCGCard> _cards;
 // 项目描述
   @override
   @JsonKey()
-  List<PTCGCard> get cards {
+  List<TCGCard> get cards {
     if (_cards is EqualUnmodifiableListView) return _cards;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_cards);
@@ -169,14 +169,14 @@ class _$PTCGProjectImpl implements _PTCGProject {
 
   @override
   String toString() {
-    return 'PTCGProject(id: $id, name: $name, description: $description, cards: $cards)';
+    return 'TCGProject(id: $id, name: $name, description: $description, cards: $cards)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$PTCGProjectImpl &&
+            other is _$TCGProjectImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
@@ -189,31 +189,31 @@ class _$PTCGProjectImpl implements _PTCGProject {
   int get hashCode => Object.hash(runtimeType, id, name, description,
       const DeepCollectionEquality().hash(_cards));
 
-  /// Create a copy of PTCGProject
+  /// Create a copy of TCGProject
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$PTCGProjectImplCopyWith<_$PTCGProjectImpl> get copyWith =>
-      __$$PTCGProjectImplCopyWithImpl<_$PTCGProjectImpl>(this, _$identity);
+  _$$TCGProjectImplCopyWith<_$TCGProjectImpl> get copyWith =>
+      __$$TCGProjectImplCopyWithImpl<_$TCGProjectImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$PTCGProjectImplToJson(
+    return _$$TCGProjectImplToJson(
       this,
     );
   }
 }
 
-abstract class _PTCGProject implements PTCGProject {
-  const factory _PTCGProject(
+abstract class _TCGProject implements TCGProject {
+  const factory _TCGProject(
       {final int? id,
       required final String name,
       required final String description,
-      final List<PTCGCard> cards}) = _$PTCGProjectImpl;
+      final List<TCGCard> cards}) = _$TCGProjectImpl;
 
-  factory _PTCGProject.fromJson(Map<String, dynamic> json) =
-      _$PTCGProjectImpl.fromJson;
+  factory _TCGProject.fromJson(Map<String, dynamic> json) =
+      _$TCGProjectImpl.fromJson;
 
   @override
   int? get id; // 系统分配的id，可以为空
@@ -222,12 +222,12 @@ abstract class _PTCGProject implements PTCGProject {
   @override
   String get description; // 项目描述
   @override
-  List<PTCGCard> get cards;
+  List<TCGCard> get cards;
 
-  /// Create a copy of PTCGProject
+  /// Create a copy of TCGProject
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PTCGProjectImplCopyWith<_$PTCGProjectImpl> get copyWith =>
+  _$$TCGProjectImplCopyWith<_$TCGProjectImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

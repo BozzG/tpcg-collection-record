@@ -10,7 +10,7 @@ import 'package:tpcg_collection_record/services/image_service.dart';
 import 'package:tpcg_collection_record/utils/grade_utils.dart';
 
 class EditCardPage extends StatefulWidget {
-  final PTCGCard? card;
+  final TCGCard? card;
   final int? projectId;
 
   const EditCardPage({super.key, this.card, this.projectId});
@@ -34,7 +34,7 @@ class _EditCardPageState extends State<EditCardPage> {
   String? _backImagePath;
   String? _gradeImagePath;
 
-  List<PTCGProject> _availableProjects = [];
+  List<TCGProject> _availableProjects = [];
   int? _selectedProjectId;
   bool _isLoadingProjects = true;
 
@@ -73,7 +73,7 @@ class _EditCardPageState extends State<EditCardPage> {
     }
   }
 
-  void _initializeWithCard(PTCGCard card) {
+  void _initializeWithCard(TCGCard card) {
     _nameController.text = card.name;
     _pokedexNumberController.text = card.pokedexNumber.toString();
     _issueNumberController.text = card.issueNumber;
@@ -175,7 +175,7 @@ class _EditCardPageState extends State<EditCardPage> {
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return '请输入宝可梦图鉴编号';
+                  return '请输入卡片编号';
                 }
                 final number = int.tryParse(value);
                 if (number == null || number <= 0) {
@@ -224,7 +224,7 @@ class _EditCardPageState extends State<EditCardPage> {
                       labelText: '所属项目',
                       border: OutlineInputBorder(),
                     ),
-                    items: _availableProjects.map((PTCGProject project) {
+                    items: _availableProjects.map((TCGProject project) {
                       return DropdownMenuItem<int>(
                         value: project.id,
                         child: Text(project.name),
@@ -514,7 +514,7 @@ class _EditCardPageState extends State<EditCardPage> {
 
     final cardViewModel = context.read<CardViewModel>();
 
-    final card = PTCGCard(
+    final card = TCGCard(
       id: isEditing ? widget.card!.id : null,
       projectId: _selectedProjectId!,
       pokedexNumber: int.parse(_pokedexNumberController.text),

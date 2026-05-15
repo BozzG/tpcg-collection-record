@@ -15,7 +15,7 @@ class CardDetailPage extends StatefulWidget {
 }
 
 class _CardDetailPageState extends State<CardDetailPage> {
-  PTCGCard? card;
+  TCGCard? card;
   bool isLoading = true;
   // 1. 添加 PageController 控制 PageView
   late PageController _pageController;
