@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
+import 'package:tpcg_collection_record/theme/app_theme.dart';
 
 class CardDetailPage extends StatefulWidget {
   final int cardId;
@@ -81,7 +82,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('卡片详情'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -91,7 +91,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('卡片详情'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         body: const Center(
           child: Text('卡片不存在'),
@@ -102,7 +101,6 @@ class _CardDetailPageState extends State<CardDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(card!.name),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -187,7 +185,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
     return Container(
       height: 300,
       width: double.infinity,
-      color: Colors.grey[100],
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
       child: Stack(
         children: [
           // 1. PageView 核心组件（添加 controller 和 physics 优化 Windows 滑动）
@@ -257,14 +255,14 @@ class _CardDetailPageState extends State<CardDetailPage> {
               fit: BoxFit.fitHeight,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  color: Colors.grey[100],
-                  child: const Center(
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                        SizedBox(height: 8),
-                        Text('图片加载失败', style: TextStyle(color: Colors.grey)),
+                        Icon(Icons.broken_image, size: 48, color: Theme.of(context).colorScheme.outline),
+                        const SizedBox(height: 8),
+                        Text('图片加载失败', style: TextStyle(color: Theme.of(context).colorScheme.outline)),
                       ],
                     ),
                   ),
@@ -334,16 +332,16 @@ class _CardDetailPageState extends State<CardDetailPage> {
             margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!),
-              color: Colors.grey[100],
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
             ),
-            child: const Center(
+            child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.image_not_supported, size: 48, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text('暂无图片', style: TextStyle(color: Colors.grey)),
+                  Icon(Icons.image_not_supported, size: 48, color: Theme.of(context).colorScheme.outline),
+                  const SizedBox(height: 8),
+                  Text('暂无图片', style: TextStyle(color: Theme.of(context).colorScheme.outline)),
                 ],
               ),
             ),
@@ -364,7 +362,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -381,37 +379,24 @@ class _CardDetailPageState extends State<CardDetailPage> {
         ),
         if (!isLast) ...[
           const SizedBox(height: 12),
-          Divider(color: Colors.grey[200], height: 1),
+          Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 1),
           const SizedBox(height: 12),
         ],
       ],
     );
   }
 
-  Color _getGradeColor(String grade) {
-    switch (grade.toUpperCase()) {
-      case 'CCIC 金10':
-      case 'CGC 金10':
-      case 'BGS 黑10':
-        return Colors.black;
-      case 'PSA 10':
-      case 'BGS 10':
-      case 'CCIC 银10':
-      case 'CGC 10':
-        return Colors.purple;
-      case 'PSA 9':
-      case 'BGS 9':
-      case 'CCIC 9':
-      case 'CGC 9':
-        return Colors.blue;
-      case 'PSA 8':
-      case 'BGS 8':
-      case 'CCIC 8':
-      case 'CGC 8':
-        return Colors.green;
-      default:
-        return Colors.orange;
+  Color _getGradeColor(String? grade) {
+    final gc = Theme.of(context).extension<GradeColors>()!;
+    if (grade == null) return gc.tierDefault;
+    final g = grade.toUpperCase();
+    if (g.contains('10') && (g.contains('PSA') || g.contains('BGS') || g.contains('CCIC') || g.contains('CGC'))) {
+      if (g.contains('金10') || g.contains('黑10') || g.contains('GOLD')) return gc.tier1;
+      return gc.tier2;
     }
+    if (g.contains('9')) return gc.tier3;
+    if (g.contains('8')) return gc.tier4;
+    return gc.tierDefault;
   }
 
   Widget _buildBasicInfoSection() {
@@ -454,7 +439,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
               Text(
                 '¥${card!.currentPrice.toStringAsFixed(2)}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.green[700],
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -519,7 +504,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                   title,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -548,12 +533,13 @@ class _CardDetailPageState extends State<CardDetailPage> {
   }
 
   Map<String, dynamic> _calculatePriceChange() {
+    final colorScheme = Theme.of(context).colorScheme;
     if (card!.acquiredPrice <= 0) {
       return {
         'percentage': '0.00%',
         'isPositive': true,
         'icon': Icons.trending_flat,
-        'color': Colors.grey,
+        'color': colorScheme.outline,
       };
     }
 
@@ -570,12 +556,13 @@ class _CardDetailPageState extends State<CardDetailPage> {
           ? (percentage > 0 ? Icons.trending_up : Icons.trending_flat)
           : Icons.trending_down,
       'color': isPositive
-          ? (percentage > 0 ? Colors.green : Colors.grey)
-          : Colors.red,
+          ? (percentage > 0 ? colorScheme.secondary : colorScheme.outline)
+          : colorScheme.error,
     };
   }
 
   Widget _buildValueInfoSection() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16.0),
       child: Card(
@@ -599,7 +586,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                       '入手价格',
                       '¥${card!.acquiredPrice.toStringAsFixed(2)}',
                       Icons.shopping_cart,
-                      Colors.blue,
+                      colorScheme.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -609,7 +596,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                       '当前估值',
                       '¥${card!.currentPrice.toStringAsFixed(2)}',
                       Icons.trending_up,
-                      Colors.green,
+                      colorScheme.secondary,
                     ),
                   ),
                 ],
@@ -638,7 +625,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
                       '持有天数',
                       _calculateHoldingDays(card!.acquiredDate).toString(),
                       Icons.calendar_today,
-                      Colors.orange,
+                      colorScheme.secondary,
                     ),
                   ),
                 ],
@@ -704,7 +691,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   ),
                   Text(
                     widget.title,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -734,20 +721,20 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   width: double.infinity,
                   height: double.infinity,
                   color: Colors.grey[900],
-                  child: const Center(
+                  child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.broken_image,
                           size: 64,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.outline,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           '图片加载失败',
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.outline,
                             fontSize: 16,
                           ),
                         ),

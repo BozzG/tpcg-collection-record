@@ -40,7 +40,6 @@ class _EditProjectPageState extends State<EditProjectPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? '编辑项目' : '添加项目'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           TextButton(
             onPressed: _saveProject,
@@ -97,39 +96,44 @@ class _EditProjectPageState extends State<EditProjectPage> {
                   ),
                   if (isEditing) ...[
                     const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                            color: Colors.blue.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.info_outline, color: Colors.blue[700]),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '项目统计',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue[700],
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '当前包含 ${widget.project!.cards.length} 张卡片',
-                                  style: TextStyle(color: Colors.blue[600]),
-                                ),
-                              ],
-                            ),
+                    Builder(
+                      builder: (context) {
+                        final colorScheme = Theme.of(context).colorScheme;
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                                color: colorScheme.primary),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: colorScheme.onPrimaryContainer),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '项目统计',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.onPrimaryContainer,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '当前包含 ${widget.project!.cards.length} 张卡片',
+                                      style: TextStyle(color: colorScheme.primary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ],

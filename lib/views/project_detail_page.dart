@@ -7,6 +7,7 @@ import 'package:tpcg_collection_record/views/edit_project_page.dart';
 import 'package:tpcg_collection_record/views/add_card_page.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
+import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
 
 class ProjectDetailPage extends StatefulWidget {
   final int projectId;
@@ -42,7 +43,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('项目详情'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -52,7 +52,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('项目详情'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         body: const Center(
           child: Text('项目不存在'),
@@ -65,7 +64,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(project!.name),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -112,7 +110,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           '卡片数量',
                           project!.cards.length.toString(),
                           Icons.credit_card,
-                          Colors.blue,
+                          Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -121,7 +119,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           '总价值',
                           '¥${totalValue.toStringAsFixed(2)}',
                           Icons.trending_up,
-                          Colors.green,
+                          Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ],
@@ -149,13 +147,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                     Text(
                       '${project!.cards.length} 张卡片',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     Text(
                       '按图鉴编号排序',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[500],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 11,
                       ),
                     ),
@@ -175,13 +173,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         Icon(
                           Icons.credit_card_off,
                           size: 64,
-                          color: Colors.grey[400],
+                          color: Theme.of(context).colorScheme.outline,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           '这个项目还没有添加任何卡片',
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey[600],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -211,13 +209,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue[100],
-                            child: Icon(
-                              Icons.credit_card,
-                              color: Colors.blue[800],
-                            ),
-                          ),
+                          leading: CardThumbnail(frontImage: card.frontImage),
                           title: Text(
                             card.name,
                             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -237,9 +229,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                             children: [
                               Text(
                                 '¥${card.currentPrice.toStringAsFixed(2)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                                  color: Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                               PopupMenuButton<String>(
@@ -269,13 +261,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                                       ],
                                     ),
                                   ),
-                                  const PopupMenuItem<String>(
+                                  PopupMenuItem<String>(
                                     value: 'delete',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.delete, size: 20, color: Colors.red),
-                                        SizedBox(width: 8),
-                                        Text('删除', style: TextStyle(color: Colors.red)),
+                                        Icon(Icons.delete, size: 20, color: Theme.of(context).colorScheme.error),
+                                        const SizedBox(width: 8),
+                                        Text('删除', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                                       ],
                                     ),
                                   ),
@@ -317,6 +309,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
   
   Widget _buildStatItem(String title, String value, IconData icon, Color color) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -335,7 +328,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   title,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
@@ -355,6 +348,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
   
   void _showDeleteCardDialog(BuildContext context, int cardId) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -382,7 +376,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   );
                 }
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: colorScheme.error),
               child: const Text('删除'),
             ),
           ],

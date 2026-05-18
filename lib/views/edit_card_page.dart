@@ -105,7 +105,6 @@ class _EditCardPageState extends State<EditCardPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? '编辑卡片' : '添加卡片'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           TextButton(
             onPressed: _saveCard,
@@ -390,6 +389,7 @@ class _EditCardPageState extends State<EditCardPage> {
 
   Widget _buildImageUpload(
       String title, String? imagePath, Function(String?) onImageSelected) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -405,7 +405,7 @@ class _EditCardPageState extends State<EditCardPage> {
           width: double.infinity,
           height: 150,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
+            border: Border.all(color: colorScheme.outlineVariant),
             borderRadius: BorderRadius.circular(8),
           ),
           child: imagePath != null && imagePath.isNotEmpty
@@ -420,17 +420,17 @@ class _EditCardPageState extends State<EditCardPage> {
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            color: Colors.grey[100],
-                            child: const Center(
+                            color: colorScheme.surfaceContainerLow,
+                            child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.broken_image,
-                                      size: 32, color: Colors.grey),
-                                  SizedBox(height: 4),
+                                      size: 32, color: colorScheme.outline),
+                                  const SizedBox(height: 4),
                                   Text('图片加载失败',
                                       style: TextStyle(
-                                          color: Colors.grey, fontSize: 12)),
+                                          color: colorScheme.outline, fontSize: 12)),
                                 ],
                               ),
                             ),
@@ -443,7 +443,7 @@ class _EditCardPageState extends State<EditCardPage> {
                       right: 8,
                       child: CircleAvatar(
                         radius: 16,
-                        backgroundColor: Colors.red,
+                        backgroundColor: colorScheme.error,
                         child: IconButton(
                           icon: const Icon(Icons.close,
                               size: 16, color: Colors.white),
@@ -466,16 +466,16 @@ class _EditCardPageState extends State<EditCardPage> {
                     width: double.infinity,
                     height: 150,
                     decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Column(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.add_photo_alternate,
-                            size: 32, color: Colors.grey),
-                        SizedBox(height: 8),
-                        Text('点击选择图片', style: TextStyle(color: Colors.grey)),
+                            size: 32, color: colorScheme.onSurfaceVariant),
+                        const SizedBox(height: 8),
+                        Text('点击选择图片', style: TextStyle(color: colorScheme.onSurfaceVariant)),
                       ],
                     ),
                   ),

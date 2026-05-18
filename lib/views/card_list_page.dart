@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
+import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
 
 class CardListPage extends StatefulWidget {
   const CardListPage({super.key});
@@ -33,10 +34,10 @@ class _CardListPageState extends State<CardListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('卡片列表'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Consumer<CardViewModel>(
         builder: (context, viewModel, child) {
+          final colorScheme = Theme.of(context).colorScheme;
           return Column(
             children: [
               // 搜索栏
@@ -74,13 +75,13 @@ class _CardListPageState extends State<CardListPage> {
                     Icon(
                       Icons.sort,
                       size: 16,
-                      color: Colors.grey[500],
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '按图鉴编号排序',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[500],
+                        color: colorScheme.onSurfaceVariant,
                         fontSize: 11,
                       ),
                     ),
@@ -101,7 +102,7 @@ class _CardListPageState extends State<CardListPage> {
                                 Icon(
                                   Icons.credit_card_off,
                                   size: 64,
-                                  color: Colors.grey[400],
+                                  color: colorScheme.outline,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
@@ -109,7 +110,7 @@ class _CardListPageState extends State<CardListPage> {
                                       ? '还没有添加任何卡片'
                                       : '没有找到匹配的卡片',
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Colors.grey[600],
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -123,13 +124,7 @@ class _CardListPageState extends State<CardListPage> {
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: Colors.blue[100],
-                                    child: Icon(
-                                      Icons.credit_card,
-                                      color: Colors.blue[800],
-                                    ),
-                                  ),
+                                  leading: CardThumbnail(frontImage: card.frontImage),
                                   title: Text(
                                     card.name,
                                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -149,9 +144,9 @@ class _CardListPageState extends State<CardListPage> {
                                     children: [
                                       Text(
                                         '¥${card.currentPrice.toStringAsFixed(2)}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.green,
+                                          color: colorScheme.secondary,
                                         ),
                                       ),
                                       PopupMenuButton<String>(
@@ -181,13 +176,13 @@ class _CardListPageState extends State<CardListPage> {
                                               ],
                                             ),
                                           ),
-                                          const PopupMenuItem<String>(
+                                          PopupMenuItem<String>(
                                             value: 'delete',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.delete, size: 20, color: Colors.red),
-                                                SizedBox(width: 8),
-                                                Text('删除', style: TextStyle(color: Colors.red)),
+                                                Icon(Icons.delete, size: 20, color: colorScheme.error),
+                                                const SizedBox(width: 8),
+                                                Text('删除', style: TextStyle(color: colorScheme.error)),
                                               ],
                                             ),
                                           ),
@@ -217,6 +212,7 @@ class _CardListPageState extends State<CardListPage> {
   }
   
   void _showDeleteDialog(BuildContext context, int cardId, CardViewModel viewModel) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -242,7 +238,7 @@ class _CardListPageState extends State<CardListPage> {
                   );
                 }
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: colorScheme.error),
               child: const Text('删除'),
             ),
           ],

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/views/card_list_page.dart';
 import 'package:tpcg_collection_record/views/project_list_page.dart';
-import 'package:tpcg_collection_record/views/card_detail_page.dart';
+import 'package:tpcg_collection_record/views/widgets/recent_card_carousel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,7 +26,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('TPCG 收藏记录'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
@@ -92,6 +91,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildStatisticsSection(
       BuildContext context, HomeViewModel viewModel) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -101,21 +101,21 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.bold,
               ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: MediaQuery.of(context).size.width > 400 ? 1.5 : 1.3,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: MediaQuery.of(context).size.width > 400 ? 1.7 : 1.5,
           children: [
             _buildStatCard(
               context,
               title: '卡片数',
               value: viewModel.cardCount.toString(),
               icon: Icons.credit_card,
-              color: Colors.blue,
+              color: colorScheme.primary,
               onTap: () {
                 Navigator.push(
                   context,
@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
               title: '项目数',
               value: viewModel.projectCount.toString(),
               icon: Icons.folder,
-              color: Colors.green,
+              color: colorScheme.tertiary,
               onTap: () {
                 Navigator.push(
                   context,
@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
               title: '总价值',
               value: '¥${viewModel.totalValue.toStringAsFixed(2)}',
               icon: Icons.trending_up,
-              color: Colors.orange,
+              color: colorScheme.secondary,
               onTap: null,
             ),
             _buildStatCard(
@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage> {
               title: '总花费',
               value: '¥${viewModel.totalCost.toStringAsFixed(2)}',
               icon: Icons.account_balance_wallet,
-              color: Colors.red,
+              color: colorScheme.onSurface,
               onTap: null,
             ),
           ],
@@ -180,7 +180,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               Icon(
                 icon,
-                size: 28,
+                size: 24,
                 color: color,
               ),
               const SizedBox(height: 6),
@@ -188,7 +188,7 @@ class _HomePageState extends State<HomePage> {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                   textAlign: TextAlign.center,
@@ -217,6 +217,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildRecentCardsSection(
       BuildContext context, HomeViewModel viewModel) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,13 +238,13 @@ class _HomePageState extends State<HomePage> {
                     Icon(
                       Icons.credit_card_off,
                       size: 48,
-                      color: Colors.grey[400],
+                      color: colorScheme.outline,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       '还没有添加任何卡片',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey[600],
+                            color: colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ],
@@ -252,78 +253,7 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: viewModel.recentCards.length,
-            itemBuilder: (context, index) {
-              final card = viewModel.recentCards[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue[100],
-                    child: Icon(
-                      Icons.credit_card,
-                      color: Colors.blue[800],
-                    ),
-                  ),
-                  title: Text(
-                    card.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('图鉴编号: #${card.pokedexNumber}'),
-                      Text('发行编号: ${card.issueNumber}'),
-                      Text('评级: ${card.grade}'),
-                    ],
-                  ),
-                  trailing: SizedBox(
-                    width: 80,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            '¥${card.currentPrice.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                              fontSize: 14,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Flexible(
-                          child: Text(
-                            card.acquiredDate,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[600],
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CardDetailPage(cardId: card.id!),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
+          RecentCardCarousel(cards: viewModel.recentCards),
       ],
     );
   }

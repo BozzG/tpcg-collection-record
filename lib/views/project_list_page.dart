@@ -34,10 +34,10 @@ class _ProjectListPageState extends State<ProjectListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('项目列表'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Consumer<ProjectViewModel>(
         builder: (context, viewModel, child) {
+          final colorScheme = Theme.of(context).colorScheme;
           return Column(
             children: [
               // 搜索栏
@@ -81,7 +81,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                   Icon(
                                     Icons.error_outline,
                                     size: 64,
-                                    color: Colors.red[400],
+                                    color: colorScheme.error,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -93,7 +93,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                   const SizedBox(height: 8),
                                   Text(
                                     viewModel.errorMessage!,
-                                    style: TextStyle(color: Colors.red[600]),
+                                    style: TextStyle(color: colorScheme.error),
                                     textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 24),
@@ -143,7 +143,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                     Icon(
                                       Icons.folder_off,
                                       size: 64,
-                                      color: Colors.grey[400],
+                                      color: colorScheme.outline,
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
@@ -151,7 +151,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                           ? '还没有创建任何项目'
                                           : '没有找到匹配的项目',
                                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                        color: Colors.grey[600],
+                                        color: colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                   ],
@@ -176,10 +176,10 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                     margin: const EdgeInsets.only(bottom: 8),
                                     child: ListTile(
                                       leading: CircleAvatar(
-                                        backgroundColor: Colors.green[100],
+                                        backgroundColor: colorScheme.secondaryContainer,
                                         child: Icon(
                                           Icons.folder,
-                                          color: Colors.green[800],
+                                          color: colorScheme.onSecondaryContainer,
                                         ),
                                       ),
                                       title: Text(
@@ -204,9 +204,9 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                         children: [
                                           Text(
                                             '¥${totalValue.toStringAsFixed(2)}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.green,
+                                              color: colorScheme.secondary,
                                             ),
                                           ),
                                           PopupMenuButton<String>(
@@ -236,13 +236,13 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                                   ],
                                                 ),
                                               ),
-                                              const PopupMenuItem<String>(
+                                              PopupMenuItem<String>(
                                                 value: 'delete',
                                                 child: Row(
                                                   children: [
-                                                    Icon(Icons.delete, size: 20, color: Colors.red),
-                                                    SizedBox(width: 8),
-                                                    Text('删除', style: TextStyle(color: Colors.red)),
+                                                    Icon(Icons.delete, size: 20, color: colorScheme.error),
+                                                    const SizedBox(width: 8),
+                                                    Text('删除', style: TextStyle(color: colorScheme.error)),
                                                   ],
                                                 ),
                                               ),
@@ -290,6 +290,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
   }
   
   void _showDeleteDialog(BuildContext context, int projectId, ProjectViewModel viewModel) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -315,7 +316,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                   );
                 }
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: colorScheme.error),
               child: const Text('删除'),
             ),
           ],

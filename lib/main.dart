@@ -6,6 +6,7 @@ import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/views/home_page.dart';
+import 'package:tpcg_collection_record/theme/app_theme.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';
 import 'dart:io' show Platform;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -108,89 +109,73 @@ class _AppInitializerState extends State<AppInitializer> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('正在初始化应用...'),
-              SizedBox(height: 8),
-              Text(
-                '首次启动可能需要几秒钟',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
+      return MaterialApp(
+        theme: AppTheme.light(),
+        home: const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('正在初始化应用...'),
+                SizedBox(height: 8),
+                _InitHintText(),
+              ],
+            ),
           ),
         ),
       );
     }
 
     if (errorMessage != null) {
-      return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                const Text(
-                  '应用初始化失败',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          isLoading = true;
-                          errorMessage = null;
-                        });
-                        _initializeDatabase();
-                      },
-                      child: const Text('重试'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // 启动一个简化版本的应用
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Scaffold(
-                              appBar: AppBar(
-                                  title: const Text('TPCG Collection Record')),
-                              body: const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.warning,
-                                        size: 64, color: Colors.orange),
-                                    SizedBox(height: 16),
-                                    Text('应用运行在安全模式'),
-                                    Text('部分功能可能不可用'),
-                                  ],
-                                ),
-                              ),
+      return MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const _ErrorIcon(),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '应用初始化失败',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const _ErrorText(),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isLoading = true;
+                            errorMessage = null;
+                          });
+                          _initializeDatabase();
+                        },
+                        child: const Text('重试'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // 启动一个简化版本的应用
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const _SafeModeScaffold(),
                             ),
-                          ),
-                        );
-                      },
-                      child: const Text('安全模式'),
-                    ),
-                  ],
-                ),
-              ],
+                          );
+                        },
+                        child: const Text('安全模式'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -213,20 +198,76 @@ class _AppInitializerState extends State<AppInitializer> {
       ],
       child: MaterialApp(
         title: 'TPCG Collection Record',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromARGB(255, 37, 35, 83)),
-          useMaterial3: true,
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 37, 35, 83),
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-        ),
-        themeMode: ThemeMode.system,
+        theme: AppTheme.light(),
         home: const HomePage(),
+      ),
+    );
+  }
+}
+
+class _InitHintText extends StatelessWidget {
+  const _InitHintText();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '首次启动可能需要几秒钟',
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        fontSize: 12,
+      ),
+    );
+  }
+}
+
+class _ErrorIcon extends StatelessWidget {
+  const _ErrorIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.error,
+      size: 64,
+      color: Theme.of(context).colorScheme.error,
+    );
+  }
+}
+
+class _ErrorText extends StatelessWidget {
+  const _ErrorText();
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = context.findAncestorStateOfType<_AppInitializerState>();
+    return Text(
+      appState?.errorMessage ?? '',
+      style: TextStyle(color: Theme.of(context).colorScheme.error),
+      textAlign: TextAlign.center,
+    );
+  }
+}
+
+class _SafeModeScaffold extends StatelessWidget {
+  const _SafeModeScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('TPCG Collection Record')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning,
+              size: 64,
+              color: Theme.of(context).colorScheme.errorContainer,
+            ),
+            const SizedBox(height: 16),
+            const Text('应用运行在安全模式'),
+            const Text('部分功能可能不可用'),
+          ],
+        ),
       ),
     );
   }
