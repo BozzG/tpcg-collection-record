@@ -4,15 +4,22 @@ import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
 
-/// 最近添加卡片横向轮播组件
+/// 高价值卡片横向轮播组件
 ///
 /// 接收 [cards] 列表渲染 PageView 大卡轮播。
+/// - 卡片图区 1:1 正方形
 /// - ≤1 张时降级为单卡居中显示
 /// - 空列表由调用方处理（不会传入空列表）
-class RecentCardCarousel extends StatelessWidget {
+class ValueCardCarousel extends StatelessWidget {
   final List<TCGCard> cards;
 
-  const RecentCardCarousel({super.key, required this.cards});
+  /// 轮播可视占比（单张卡片占屏幕宽度比例）
+  static const double _viewportFraction = 0.72;
+
+  /// 信息栏高度
+  static const double _infoBarHeight = 76.0;
+
+  const ValueCardCarousel({super.key, required this.cards});
 
   @override
   Widget build(BuildContext context) {
@@ -20,39 +27,36 @@ class RecentCardCarousel extends StatelessWidget {
     final gradeColors = Theme.of(context).extension<GradeColors>()!;
     final screenWidth = MediaQuery.of(context).size.width;
 
+    // 卡片实际宽度（减去水平 padding）
+    final cardWidth = screenWidth * _viewportFraction - 8;
+    // 1:1 正方形图片区
+    final imageHeight = cardWidth / 1.2;
+    // 轮播总高度 = 图片 + 信息栏 + Card 内边距余量
+    final carouselHeight = imageHeight + _infoBarHeight + 28;
+
     if (cards.length <= 1) {
-      return _buildSingleCard(
-          context, cards.first, colorScheme, gradeColors, screenWidth);
+      return Center(
+        child: SizedBox(
+          width: cardWidth,
+          height: carouselHeight,
+          child: _buildCarouselCard(
+              context, cards.first, colorScheme, gradeColors, imageHeight),
+        ),
+      );
     }
 
     return SizedBox(
-      height: 256,
+      height: carouselHeight,
       child: PageView.builder(
-        controller: PageController(viewportFraction: 0.82),
+        controller: PageController(viewportFraction: _viewportFraction),
         itemCount: cards.length,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: _buildCarouselCard(
-                context, cards[index], colorScheme, gradeColors),
+                context, cards[index], colorScheme, gradeColors, imageHeight),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildSingleCard(
-    BuildContext context,
-    TCGCard card,
-    ColorScheme colorScheme,
-    GradeColors gradeColors,
-    double screenWidth,
-  ) {
-    return Center(
-      child: SizedBox(
-        width: screenWidth * 0.82,
-        height: 256,
-        child: _buildCarouselCard(context, card, colorScheme, gradeColors),
       ),
     );
   }
@@ -62,8 +66,10 @@ class RecentCardCarousel extends StatelessWidget {
     TCGCard card,
     ColorScheme colorScheme,
     GradeColors gradeColors,
+    double imageHeight,
   ) {
     return Card(
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -73,17 +79,16 @@ class RecentCardCarousel extends StatelessWidget {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 上部：卡面图区 + 浮层徽章
+            // 上部：卡面图区 1:1 + 浮层徽章
             SizedBox(
-              height: 150,
+              height: imageHeight,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // 卡面图
+                  // 卡面图（contain 全貌展示）
                   ClipRRect(
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(14),
@@ -102,57 +107,57 @@ class RecentCardCarousel extends StatelessWidget {
                 ],
               ),
             ),
-            // 下部：信息区
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 卡名
-                    Text(
-                      card.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    // 副信息行
-                    Text(
-                      '#${card.pokedexNumber} · ${card.issueNumber}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    // 价签 + 日期
-                    Row(
-                      children: [
-                        Text(
-                          '¥${card.currentPrice.toStringAsFixed(2)}',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: colorScheme.secondary,
-                                  ),
+            // 下部：信息栏
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 卡名
+                  Text(
+                    card.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
                         ),
-                        const Spacer(),
-                        Text(
-                          card.acquiredDate,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  // 副信息行：图鉴编号 · 发行编号
+                  Text(
+                    '#${card.pokedexNumber} · ${card.issueNumber}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  // 价签 + 入手时间
+                  Row(
+                    children: [
+                      Text(
+                        '¥${card.currentPrice.toStringAsFixed(2)}',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: colorScheme.secondary,
+                                ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        card.acquiredDate,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -164,12 +169,15 @@ class RecentCardCarousel extends StatelessWidget {
   Widget _buildCardImage(String? frontImage, ColorScheme colorScheme) {
     if (frontImage != null && frontImage.isNotEmpty) {
       final file = File(frontImage);
-      return Image.file(
-        file,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder(colorScheme);
-        },
+      return Container(
+        color: colorScheme.surfaceContainerLow,
+        child: Image.file(
+          file,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholder(colorScheme);
+          },
+        ),
       );
     }
     return _buildPlaceholder(colorScheme);
@@ -200,7 +208,7 @@ class RecentCardCarousel extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: colorScheme.outline,
-          width: 1.5,
+          width: 1.0,
         ),
       ),
       child: Text(

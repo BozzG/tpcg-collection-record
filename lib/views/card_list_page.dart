@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tpcg_collection_record/models/sort_option.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
@@ -42,7 +43,7 @@ class _CardListPageState extends State<CardListPage> {
             children: [
               // 搜索栏
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -57,16 +58,16 @@ class _CardListPageState extends State<CardListPage> {
                             },
                           )
                         : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                   ),
                   onChanged: (value) {
                     viewModel.searchCards(value);
                   },
                 ),
               ),
-              
+
+              // 筛选条
+              _buildFilterBar(context, viewModel),
+
               // 排序提示
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -79,17 +80,32 @@ class _CardListPageState extends State<CardListPage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '按图鉴编号排序',
+                      '按${viewModel.sortLabel}排序',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         fontSize: 11,
                       ),
                     ),
+                    const Spacer(),
+                    if (viewModel.hasActiveFilters)
+                      TextButton(
+                        onPressed: () {
+                          viewModel.clearAllFilters();
+                          _searchController.clear();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: colorScheme.error,
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('清除筛选', style: TextStyle(fontSize: 11)),
+                      ),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               // 卡片列表
               Expanded(
                 child: viewModel.isLoading
@@ -106,7 +122,8 @@ class _CardListPageState extends State<CardListPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  viewModel.searchQuery.isEmpty
+                                  viewModel.searchQuery.isEmpty &&
+                                          !viewModel.hasActiveFilters
                                       ? '还没有添加任何卡片'
                                       : '没有找到匹配的卡片',
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -210,7 +227,203 @@ class _CardListPageState extends State<CardListPage> {
       ),
     );
   }
-  
+
+  Widget _buildFilterBar(BuildContext context, CardViewModel viewModel) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: [
+          // 评级筛选
+          FilterChip(
+            label: Text(viewModel.selectedGrades.isEmpty
+                ? '评级'
+                : '评级 (${viewModel.selectedGrades.length})'),
+            selected: viewModel.selectedGrades.isNotEmpty,
+            onSelected: (_) => _showGradeFilterDialog(context, viewModel),
+            selectedColor: colorScheme.primaryContainer,
+            labelStyle: TextStyle(
+              color: viewModel.selectedGrades.isNotEmpty
+                  ? colorScheme.onPrimaryContainer
+                  : null,
+            ),
+          ),
+          // 项目筛选
+          FilterChip(
+            label: Text(viewModel.selectedProjectIds.isEmpty
+                ? '项目'
+                : '项目 (${viewModel.selectedProjectIds.length})'),
+            selected: viewModel.selectedProjectIds.isNotEmpty,
+            onSelected: (_) => _showProjectFilterDialog(context, viewModel),
+            selectedColor: colorScheme.primaryContainer,
+            labelStyle: TextStyle(
+              color: viewModel.selectedProjectIds.isNotEmpty
+                  ? colorScheme.onPrimaryContainer
+                  : null,
+            ),
+          ),
+          // 排序方式
+          FilterChip(
+            label: Text(viewModel.sortLabel),
+            selected: viewModel.sortOption != SortOption.pokedexAsc,
+            onSelected: (_) => _showSortDialog(context, viewModel),
+            selectedColor: colorScheme.primaryContainer,
+            labelStyle: TextStyle(
+              color: viewModel.sortOption != SortOption.pokedexAsc
+                  ? colorScheme.onPrimaryContainer
+                  : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showGradeFilterDialog(BuildContext context, CardViewModel viewModel) {
+    final grades = viewModel.availableGrades;
+    final selected = Set<String>.from(viewModel.selectedGrades);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('选择评级'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: grades.map((grade) {
+                    return CheckboxListTile(
+                      title: Text(grade),
+                      value: selected.contains(grade),
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            selected.add(grade);
+                          } else {
+                            selected.remove(grade);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    selected.clear();
+                    setState(() {});
+                  },
+                  child: const Text('清除'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    viewModel.setGradeFilter(selected);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('确定'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showProjectFilterDialog(BuildContext context, CardViewModel viewModel) {
+    final projects = viewModel.availableProjects;
+    final selected = Set<int>.from(viewModel.selectedProjectIds);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('选择项目'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: projects.map((entry) {
+                    return CheckboxListTile(
+                      title: Text(entry.value),
+                      value: selected.contains(entry.key),
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            selected.add(entry.key);
+                          } else {
+                            selected.remove(entry.key);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    selected.clear();
+                    setState(() {});
+                  },
+                  child: const Text('清除'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    viewModel.setProjectFilter(selected);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('确定'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showSortDialog(BuildContext context, CardViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('排序方式'),
+          children: SortOption.values.map((option) {
+            return SimpleDialogOption(
+              onPressed: () {
+                viewModel.setSortOption(option);
+                Navigator.of(context).pop();
+              },
+              child: Row(
+                children: [
+                  Icon(
+                    viewModel.sortOption == option
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: viewModel.sortOption == option
+                        ? Theme.of(context).colorScheme.primary
+                        : null,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(option.label),
+                ],
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
   void _showDeleteDialog(BuildContext context, int cardId, CardViewModel viewModel) {
     final colorScheme = Theme.of(context).colorScheme;
     showDialog(

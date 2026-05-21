@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/views/card_list_page.dart';
 import 'package:tpcg_collection_record/views/project_list_page.dart';
-import 'package:tpcg_collection_record/views/widgets/recent_card_carousel.dart';
+import 'package:tpcg_collection_record/views/widgets/value_card_carousel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -73,8 +73,8 @@ class _HomePageState extends State<HomePage> {
                     _buildStatisticsSection(context, viewModel),
                     const SizedBox(height: 24),
 
-                    // 最近添加的卡片
-                    _buildRecentCardsSection(context, viewModel),
+                    // 高价值卡片
+                    _buildTopValueCardsSection(context, viewModel),
 
                     // 添加底部安全间距
                     SizedBox(
@@ -215,20 +215,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildRecentCardsSection(
+  Widget _buildTopValueCardsSection(
       BuildContext context, HomeViewModel viewModel) {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '最近添加',
+          '最高价值',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 16),
-        if (viewModel.recentCards.isEmpty)
+        if (viewModel.topValueCards.isEmpty)
           Card(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         else
-          RecentCardCarousel(cards: viewModel.recentCards),
+          ValueCardCarousel(cards: viewModel.topValueCards),
       ],
     );
   }

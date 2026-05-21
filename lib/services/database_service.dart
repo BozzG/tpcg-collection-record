@@ -376,6 +376,33 @@ class DatabaseService {
     });
   }
 
+  Future<List<TCGCard>> getTopValueCards({int limit = 10}) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'cards',
+      orderBy: 'current_price DESC',
+      limit: limit,
+    );
+
+    return List.generate(maps.length, (i) {
+      return TCGCard(
+        id: maps[i]['id'],
+        projectId: maps[i]['project_id'],
+        pokedexNumber: maps[i]['pokedex_number'],
+        name: maps[i]['name'],
+        issueNumber: maps[i]['issue_number'],
+        issueDate: maps[i]['issue_date'],
+        grade: maps[i]['grade'],
+        acquiredDate: maps[i]['acquired_date'],
+        acquiredPrice: maps[i]['acquired_price'],
+        currentPrice: maps[i]['current_price'],
+        frontImage: maps[i]['front_image'],
+        backImage: maps[i]['back_image'],
+        gradeImage: maps[i]['grade_image'],
+      );
+    });
+  }
+
   // 统计相关操作
   Future<int> getTotalCardCount() async {
     final db = await database;

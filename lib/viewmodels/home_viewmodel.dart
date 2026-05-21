@@ -9,21 +9,21 @@ class HomeViewModel extends ChangeNotifier {
   HomeViewModel(this._databaseService) {
     Log.info('初始化首页ViewModel');
     loadStatistics();
-    loadRecentCards();
+    loadTopValueCards();
   }
   
   int _cardCount = 0;
   int _projectCount = 0;
   double _totalValue = 0.0;
   double _totalCost = 0.0;
-  List<TCGCard> _recentCards = [];
+  List<TCGCard> _topValueCards = [];
   bool _isLoading = false;
   
   int get cardCount => _cardCount;
   int get projectCount => _projectCount;
   double get totalValue => _totalValue;
   double get totalCost => _totalCost;
-  List<TCGCard> get recentCards => _recentCards;
+  List<TCGCard> get topValueCards => _topValueCards;
   bool get isLoading => _isLoading;
   
   Future<void> loadStatistics() async {
@@ -46,14 +46,14 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
-  Future<void> loadRecentCards() async {
+  Future<void> loadTopValueCards() async {
     try {
-      Log.debug('开始加载最近添加的卡片');
-      _recentCards = await _databaseService.getRecentCards(limit: 5);
-      Log.info('最近卡片加载成功，数量: ${_recentCards.length}');
+      Log.debug('开始加载高价值卡片');
+      _topValueCards = await _databaseService.getTopValueCards(limit: 50);
+      Log.info('高价值卡片加载成功，数量: ${_topValueCards.length}');
       notifyListeners();
     } catch (e, stackTrace) {
-      Log.error('加载最近卡片时发生错误', e, stackTrace);
+      Log.error('加载高价值卡片时发生错误', e, stackTrace);
     }
   }
   
@@ -61,7 +61,7 @@ class HomeViewModel extends ChangeNotifier {
     Log.info('刷新首页数据');
     await Future.wait([
       loadStatistics(),
-      loadRecentCards(),
+      loadTopValueCards(),
     ]);
   }
 }
