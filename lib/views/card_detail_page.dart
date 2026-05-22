@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
+import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
 
 class CardDetailPage extends StatefulWidget {
   final int cardId;
@@ -250,24 +250,24 @@ class _CardDetailPageState extends State<CardDetailPage> {
           SizedBox(
             width: double.infinity,
             height: double.infinity,
-            child: Image.file(
-              File(imagePath),
+            child: ImageFileWidget(
+              imageRef: imagePath,
               fit: BoxFit.fitHeight,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.broken_image, size: 48, color: Theme.of(context).colorScheme.outline),
-                        const SizedBox(height: 8),
-                        Text('图片加载失败', style: TextStyle(color: Theme.of(context).colorScheme.outline)),
-                      ],
-                    ),
+              width: double.infinity,
+              height: double.infinity,
+              placeholder: Container(
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.broken_image, size: 48, color: Theme.of(context).colorScheme.outline),
+                      const SizedBox(height: 8),
+                      Text('图片已丢失', style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+                    ],
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -713,36 +713,34 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
             transformationController: _transformationController,
             minScale: 0.5,
             maxScale: 5.0,
-            child: Image.file(
-              File(widget.imagePath),
+            child: ImageFileWidget(
+              imageRef: widget.imagePath,
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.grey[900],
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.broken_image,
-                          size: 64,
+              placeholder: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.grey[900],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.broken_image,
+                        size: 64,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '图片已丢失',
+                        style: TextStyle(
                           color: Theme.of(context).colorScheme.outline,
+                          fontSize: 16,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          '图片加载失败',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.outline,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
         ),

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +7,7 @@ import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/services/image_service.dart';
 import 'package:tpcg_collection_record/utils/grade_utils.dart';
+import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
 
 class EditCardPage extends StatefulWidget {
   final TCGCard? card;
@@ -413,29 +413,28 @@ class _EditCardPageState extends State<EditCardPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(imagePath),
+                      child: ImageFileWidget(
+                        imageRef: imagePath,
                         width: double.infinity,
                         height: 150,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: colorScheme.surfaceContainerLow,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.broken_image,
-                                      size: 32, color: colorScheme.outline),
-                                  const SizedBox(height: 4),
-                                  Text('图片加载失败',
-                                      style: TextStyle(
-                                          color: colorScheme.outline, fontSize: 12)),
-                                ],
-                              ),
+                        borderRadius: BorderRadius.circular(8),
+                        placeholder: Container(
+                          color: colorScheme.surfaceContainerLow,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.broken_image,
+                                    size: 32, color: colorScheme.outline),
+                                const SizedBox(height: 4),
+                                Text('图片已丢失',
+                                    style: TextStyle(
+                                        color: colorScheme.outline, fontSize: 12)),
+                              ],
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       ),
                     ),
                     Positioned(

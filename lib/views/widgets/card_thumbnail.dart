@@ -1,14 +1,13 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:tpcg_collection_record/utils/logger.dart';
+import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
 
 /// 卡片正面缩略图组件
 ///
 /// 矩形圆角缩略图，5:7 比例（贴近真实卡牌形态），用于列表项 leading。
 /// 三态渲染：
-/// - 有图：Image.file + BoxFit.cover + cacheWidth 内存优化
+/// - 有图：通过 ImageFileWidget 加载（兼容纯文件名和绝对路径）
 /// - 无图（null/空串）：primaryContainer 背景 + Icons.credit_card
-/// - 加载失败：视觉同无图 + Log.warning 静默回退
+/// - 加载失败：视觉同无图，静默回退
 class CardThumbnail extends StatelessWidget {
   const CardThumbnail({
     super.key,
@@ -26,22 +25,6 @@ class CardThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final hasImage = frontImage != null && frontImage!.isNotEmpty;
-
-    Widget child;
-    if (hasImage) {
-      child = Image.file(
-        File(frontImage!),
-        fit: BoxFit.cover,
-        cacheWidth: (height * MediaQuery.of(context).devicePixelRatio).toInt(),
-        errorBuilder: (context, error, stackTrace) {
-          Log.warning('卡片缩略图加载失败: $frontImage');
-          return _buildPlaceholder(colorScheme);
-        },
-      );
-    } else {
-      child = _buildPlaceholder(colorScheme);
-    }
 
     return Container(
       height: height,
@@ -63,7 +46,13 @@ class CardThumbnail extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: AspectRatio(
           aspectRatio: aspectRatio,
-          child: child,
+          child: ImageFileWidget(
+            imageRef: frontImage,
+            fit: BoxFit.cover,
+            cacheWidth:
+                (height * MediaQuery.of(context).devicePixelRatio).toInt(),
+            placeholder: _buildPlaceholder(colorScheme),
+          ),
         ),
       ),
     );

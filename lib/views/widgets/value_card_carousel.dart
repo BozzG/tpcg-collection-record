@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
+import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
 
 /// 高价值卡片横向轮播组件
 ///
@@ -168,15 +168,12 @@ class ValueCardCarousel extends StatelessWidget {
 
   Widget _buildCardImage(String? frontImage, ColorScheme colorScheme) {
     if (frontImage != null && frontImage.isNotEmpty) {
-      final file = File(frontImage);
       return Container(
         color: colorScheme.surfaceContainerLow,
-        child: Image.file(
-          file,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildPlaceholder(colorScheme);
-          },
+        child: ImageFileWidget(
+          imageRef: frontImage,
+          fit: BoxFit.cover,
+          placeholder: _buildPlaceholder(colorScheme),
         ),
       );
     }

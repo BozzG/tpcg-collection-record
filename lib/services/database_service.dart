@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/models/ptcg_project.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';
+import 'package:path/path.dart' as p;
 
 class DatabaseService {
   static Database? _database;
@@ -24,7 +25,7 @@ class DatabaseService {
 
       final db = await openDatabase(
         path,
-        version: 2,
+        version: 3,
         onCreate: _createDatabase,
         onUpgrade: _upgradeDatabase,
       );
@@ -89,11 +90,44 @@ class DatabaseService {
         Log.debug('升级步骤2: pokedex_number字段添加成功');
       }
 
+      if (oldVersion < 3) {
+        Log.info('升级步骤: 迁移图片绝对路径为纯文件名');
+        await _migrateImagePaths(db);
+      }
+
       Log.info('数据库升级完成');
     } catch (e, stackTrace) {
       Log.fatal('数据库升级失败', e, stackTrace);
       rethrow;
     }
+  }
+
+  /// 将 front_image / back_image / grade_image 中的绝对路径转为纯文件名。
+  /// 这样 App 重装/升级导致沙箱 UUID 变化时，图片仍可被找回。
+  Future<void> _migrateImagePaths(Database db) async {
+    final columns = ['front_image', 'back_image', 'grade_image'];
+    final rows = await db.query('cards', columns: ['id', ...columns]);
+    int migrated = 0;
+
+    for (final row in rows) {
+      final id = row['id'] as int;
+      final updates = <String, Object?>{};
+
+      for (final col in columns) {
+        final value = row[col] as String?;
+        if (value != null && value.contains('/')) {
+          // 绝对路径 → 取纯文件名
+          updates[col] = p.basename(value);
+        }
+      }
+
+      if (updates.isNotEmpty) {
+        await db.update('cards', updates, where: 'id = ?', whereArgs: [id]);
+        migrated++;
+      }
+    }
+
+    Log.info('图片路径迁移完成: $migrated 条记录已更新');
   }
 
   // 项目相关操作

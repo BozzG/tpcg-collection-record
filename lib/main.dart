@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/services/database_service.dart';
+import 'package:tpcg_collection_record/services/image_service.dart';
 import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
+import 'package:tpcg_collection_record/viewmodels/theme_notifier.dart';
 import 'package:tpcg_collection_record/views/home_page.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';
@@ -79,6 +81,9 @@ class _AppInitializerState extends State<AppInitializer> {
           throw TimeoutException('数据库初始化超时', const Duration(seconds: 30));
         },
       );
+
+      // 预热 ImageService 沙箱路径缓存
+      await ImageService.getImagesDirectory();
 
       if (mounted) {
         setState(() {
@@ -195,13 +200,20 @@ class _AppInitializerState extends State<AppInitializer> {
         ChangeNotifierProvider(
           create: (context) => ProjectViewModel(databaseService!),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ThemeNotifier(),
+        ),
       ],
-      child: MaterialApp(
-        title: 'TPCG Collection Record',
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        home: const HomePage(),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, _) {
+          return MaterialApp(
+            title: 'TPCG Collection Record',
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: themeNotifier.themeMode,
+            home: const HomePage(),
+          );
+        },
       ),
     );
   }

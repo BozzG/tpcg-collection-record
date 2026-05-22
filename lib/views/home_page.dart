@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
+import 'package:tpcg_collection_record/viewmodels/theme_notifier.dart';
 import 'package:tpcg_collection_record/views/card_list_page.dart';
 import 'package:tpcg_collection_record/views/project_list_page.dart';
 import 'package:tpcg_collection_record/views/widgets/value_card_carousel.dart';
@@ -26,6 +27,16 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('TPCG 收藏记录'),
+        leading: Consumer<ThemeNotifier>(
+          builder: (context, themeNotifier, _) {
+            final isDark = themeNotifier.isDark;
+            return IconButton(
+              icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+              tooltip: isDark ? '切换到浅色模式' : '切换到深色模式',
+              onPressed: () => themeNotifier.toggle(),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
