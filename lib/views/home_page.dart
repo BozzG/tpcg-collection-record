@@ -229,17 +229,50 @@ class _HomePageState extends State<HomePage> {
   Widget _buildTopValueCardsSection(
       BuildContext context, HomeViewModel viewModel) {
     final colorScheme = Theme.of(context).colorScheme;
+    final cards = viewModel.carouselCards;
+    // 下一种模式（仅二选一时简单切换；未来扩展可改为按枚举顺序循环）
+    final nextMode = viewModel.carouselMode == CarouselMode.topValue
+        ? CarouselMode.recentAcquired
+        : CarouselMode.topValue;
+    final nextLabel = nextMode == CarouselMode.topValue ? '最高价值' : '最新入手';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '最高价值',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+        // 标题即开关：整个标题区域可点击切换排序模式，与「收藏统计」标题视觉对齐
+        InkWell(
+          onTap: () => viewModel.setCarouselMode(nextMode),
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+            child: Tooltip(
+              message: '点击切换为「$nextLabel」',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      viewModel.carouselTitle,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.swap_vert,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ),
+            ),
+          ),
         ),
-        const SizedBox(height: 16),
-        if (viewModel.topValueCards.isEmpty)
+        const SizedBox(height: 8),
+        if (cards.isEmpty)
           Card(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -264,7 +297,7 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         else
-          ValueCardCarousel(cards: viewModel.topValueCards),
+          ValueCardCarousel(cards: cards),
       ],
     );
   }

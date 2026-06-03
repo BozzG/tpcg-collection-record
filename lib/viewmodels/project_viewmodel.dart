@@ -129,7 +129,52 @@ class ProjectViewModel extends ChangeNotifier {
     _filteredProjects = List.from(_projects);
     notifyListeners();
   }
-  
+
+  /// 拖拽调整项目顺序：先本地调整顺序并即时刷新 UI，再异步持久化到数据库。
+  /// 仅在未搜索（完整列表）状态下调用。
+  ///
+  /// 返回值：
+  /// - true  表示已成功落库（含被忽略的越界/同位移动等 no-op 场景）
+  /// - false 表示本地已调整但持久化失败，调用方可据此提示用户
+  Future<bool> reorderProjects(int oldIndex, int newIndex) async {
+    // ReorderableListView 的 newIndex 在向下移动时是「插入位置」，需要 -1 修正
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    if (oldIndex < 0 ||
+        oldIndex >= _projects.length ||
+        newIndex < 0 ||
+        newIndex >= _projects.length) {
+      Log.warning('拖拽索引越界，忽略: old=$oldIndex new=$newIndex len=${_projects.length}');
+      return true; // no-op，无须提示用户
+    }
+    if (oldIndex == newIndex) return true;
+
+    final moved = _projects.removeAt(oldIndex);
+    _projects.insert(newIndex, moved);
+    _filteredProjects = List.from(_projects);
+    notifyListeners();
+
+    try {
+      // 防御性过滤：理论上 DB 读出的项目 id 恒非空，
+      // 此处用 whereType<int> 过滤未持久化对象，避免非空断言带来的潜在 crash。
+      final orderedIds = _projects
+          .map((p) => p.id)
+          .whereType<int>()
+          .toList(growable: false);
+      if (orderedIds.length != _projects.length) {
+        Log.warning(
+            '存在未持久化项目，跳过 ${_projects.length - orderedIds.length} 个无 id 项');
+      }
+      await _databaseService.updateProjectsOrder(orderedIds);
+      Log.info('项目顺序调整成功: ${moved.name} ($oldIndex -> $newIndex)');
+      return true;
+    } catch (e, stackTrace) {
+      Log.error('持久化项目顺序失败', e, stackTrace);
+      return false;
+    }
+  }
+
   double getProjectTotalValue(TCGProject project) {
     final totalValue = project.cards.fold(0.0, (sum, card) => sum + card.currentPrice);
     Log.debug('计算项目总价值: ${project.name} = ¥${totalValue.toStringAsFixed(2)}');

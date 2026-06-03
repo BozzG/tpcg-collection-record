@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tpcg_collection_record/models/ptcg_project.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/views/project_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_project_page.dart';
 import 'package:tpcg_collection_record/views/add_project_page.dart';
+import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
 
 class ProjectListPage extends StatefulWidget {
   const ProjectListPage({super.key});
@@ -157,118 +159,55 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                   ],
                                 ),
                               )
-                            : ListView.builder(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: viewModel.projects.length,
-                                itemBuilder: (context, index) {
-                                  final project = viewModel.projects[index];
-                                  
-                                  // 安全地计算总价值
-                                  double totalValue = 0.0;
-                                  try {
-                                    totalValue = viewModel.getProjectTotalValue(project);
-                                  } catch (e) {
-                                    // 如果计算失败，使用默认值
-                                    totalValue = 0.0;
-                                  }
-                                  
-                                  return Card(
-                                    margin: const EdgeInsets.only(bottom: 8),
-                                    child: ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: colorScheme.secondaryContainer,
-                                        child: Icon(
-                                          Icons.folder,
-                                          color: colorScheme.onSecondaryContainer,
-                                        ),
-                                      ),
-                                      title: Text(
-                                        project.name,
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            project.description,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                            : viewModel.searchQuery.isNotEmpty
+                                ? ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    itemCount: viewModel.projects.length,
+                                    itemBuilder: (context, index) {
+                                      final project =
+                                          viewModel.projects[index];
+                                      return _buildProjectItem(
+                                        context,
+                                        viewModel,
+                                        colorScheme,
+                                        project,
+                                        key: ValueKey(project.id),
+                                      );
+                                    },
+                                  )
+                                : ReorderableListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    itemCount: viewModel.projects.length,
+                                    onReorder: (oldIndex, newIndex) async {
+                                      final messenger =
+                                          ScaffoldMessenger.of(context);
+                                      final ok =
+                                          await viewModel.reorderProjects(
+                                              oldIndex, newIndex);
+                                      if (!ok && context.mounted) {
+                                        messenger.showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                '顺序保存失败，重启后可能恢复原顺序'),
+                                            duration: Duration(seconds: 2),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text('卡片数: ${project.cards.length}'),
-                                        ],
-                                      ),
-                                      trailing: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            '¥${totalValue.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: colorScheme.secondary,
-                                            ),
-                                          ),
-                                          PopupMenuButton<String>(
-                                            onSelected: (value) async {
-                                              if (value == 'edit') {
-                                                final result = await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => EditProjectPage(project: project),
-                                                  ),
-                                                );
-                                                if (result == true && context.mounted) {
-                                                  viewModel.loadAllProjects();
-                                                }
-                                              } else if (value == 'delete') {
-                                                _showDeleteDialog(context, project.id!, viewModel);
-                                              }
-                                            },
-                                            itemBuilder: (BuildContext context) => [
-                                              const PopupMenuItem<String>(
-                                                value: 'edit',
-                                                child: Row(
-                                                  children: [
-                                                    Icon(Icons.edit, size: 20),
-                                                    SizedBox(width: 8),
-                                                    Text('编辑'),
-                                                  ],
-                                                ),
-                                              ),
-                                              PopupMenuItem<String>(
-                                                value: 'delete',
-                                                child: Row(
-                                                  children: [
-                                                    Icon(Icons.delete, size: 20, color: colorScheme.error),
-                                                    const SizedBox(width: 8),
-                                                    Text('删除', style: TextStyle(color: colorScheme.error)),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                            child: const Icon(Icons.more_vert),
-                                          ),
-                                        ],
-                                      ),
-                                      onTap: () {
-                                        try {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ProjectDetailPage(projectId: project.id!),
-                                            ),
-                                          );
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('打开项目详情失败: ${e.toString()}')),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
+                                        );
+                                      }
+                                    },
+                                    itemBuilder: (context, index) {
+                                      final project =
+                                          viewModel.projects[index];
+                                      return _buildProjectItem(
+                                        context,
+                                        viewModel,
+                                        colorScheme,
+                                        project,
+                                        key: ValueKey(project.id),
+                                      );
+                                    },
+                                  ),
               ),
             ],
           );
@@ -289,6 +228,118 @@ class _ProjectListPageState extends State<ProjectListPage> {
     );
   }
   
+  Widget _buildProjectItem(
+    BuildContext context,
+    ProjectViewModel viewModel,
+    ColorScheme colorScheme,
+    TCGProject project, {
+    required Key key,
+  }) {
+    // 安全地计算总价值
+    double totalValue = 0.0;
+    try {
+      totalValue = viewModel.getProjectTotalValue(project);
+    } catch (e) {
+      totalValue = 0.0;
+    }
+
+    return Card(
+      key: key,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CardThumbnail(
+          frontImage: project.cards.isNotEmpty
+              ? project.cards.first.frontImage
+              : null,
+        ),
+        title: Text(
+          project.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              project.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text('卡片数: ${project.cards.length}'),
+          ],
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '¥${totalValue.toStringAsFixed(2)}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.secondary,
+              ),
+            ),
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == 'edit') {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProjectPage(project: project),
+                    ),
+                  );
+                  if (result == true && context.mounted) {
+                    viewModel.loadAllProjects();
+                  }
+                } else if (value == 'delete') {
+                  _showDeleteDialog(context, project.id!, viewModel);
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 8),
+                      Text('编辑'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20, color: colorScheme.error),
+                      const SizedBox(width: 8),
+                      Text('删除', style: TextStyle(color: colorScheme.error)),
+                    ],
+                  ),
+                ),
+              ],
+              child: const Icon(Icons.more_vert),
+            ),
+          ],
+        ),
+        onTap: () {
+          try {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ProjectDetailPage(projectId: project.id!),
+              ),
+            );
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('打开项目详情失败: ${e.toString()}')),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   void _showDeleteDialog(BuildContext context, int projectId, ProjectViewModel viewModel) {
     final colorScheme = Theme.of(context).colorScheme;
     showDialog(
