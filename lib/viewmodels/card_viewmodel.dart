@@ -4,6 +4,11 @@ import 'package:tpcg_collection_record/models/sort_option.dart';
 import 'package:tpcg_collection_record/services/database_service.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';
 
+/// 卡片列表的展示形态。
+/// - [wall] 卡墙陈列：2 列竖版大图，仿实体卡册，突出卡面
+/// - [list] 列表：信息密集，便于检索核对
+enum CardViewMode { wall, list }
+
 class CardViewModel extends ChangeNotifier {
   final DatabaseService _databaseService;
 
@@ -24,8 +29,28 @@ class CardViewModel extends ChangeNotifier {
   // 项目名映射（projectId → name），用于 UI 显示
   Map<int, String> _projectNameMap = {};
 
+  // 展示形态：默认卡墙陈列，突出「收藏手账」的藏品感
+  CardViewMode _viewMode = CardViewMode.wall;
+
   List<TCGCard> get cards => _filteredCards;
   bool get isLoading => _isLoading;
+
+  /// 当前列表展示形态
+  CardViewMode get viewMode => _viewMode;
+
+  /// 切换列表 / 卡墙展示形态
+  void setViewMode(CardViewMode mode) {
+    if (_viewMode == mode) return;
+    _viewMode = mode;
+    Log.debug('切换卡片展示形态: $mode');
+    notifyListeners();
+  }
+
+  /// 在列表与卡墙之间翻转
+  void toggleViewMode() {
+    setViewMode(
+        _viewMode == CardViewMode.wall ? CardViewMode.list : CardViewMode.wall);
+  }
   String get searchQuery => _searchQuery;
   Set<String> get selectedGrades => _selectedGrades;
   Set<int> get selectedProjectIds => _selectedProjectIds;

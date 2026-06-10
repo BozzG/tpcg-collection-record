@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_project.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 
 class EditProjectPage extends StatefulWidget {
   final TCGProject? project;
@@ -47,7 +48,8 @@ class _EditProjectPageState extends State<EditProjectPage> {
           ),
         ],
       ),
-      body: Form(
+      body: ShowcaseBackground(
+        child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -140,6 +142,7 @@ class _EditProjectPageState extends State<EditProjectPage> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );

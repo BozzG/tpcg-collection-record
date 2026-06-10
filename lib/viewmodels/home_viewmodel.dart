@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/services/database_service.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';

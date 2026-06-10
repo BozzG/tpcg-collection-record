@@ -7,7 +7,9 @@ import 'package:tpcg_collection_record/views/edit_project_page.dart';
 import 'package:tpcg_collection_record/views/add_card_page.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
-import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
+import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
+import 'package:tpcg_collection_record/views/widgets/micro_interactions.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 
 class ProjectDetailPage extends StatefulWidget {
   final int projectId;
@@ -44,7 +46,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         appBar: AppBar(
           title: const Text('项目详情'),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const ShowcaseBackground(
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
 
@@ -53,8 +57,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         appBar: AppBar(
           title: const Text('项目详情'),
         ),
-        body: const Center(
-          child: Text('项目不存在'),
+        body: const ShowcaseBackground(
+          child: Center(
+            child: Text('项目不存在'),
+          ),
         ),
       );
     }
@@ -81,7 +87,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           ),
         ],
       ),
-      body: Column(
+      body: ShowcaseBackground(
+        child: Column(
         children: [
           // 项目信息卡片
           Card(
@@ -201,95 +208,51 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       ],
                     ),
                   )
-                : ListView.builder(
+                : GridView.builder(
                     padding: const EdgeInsets.all(16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 5 / 7,
+                    ),
                     itemCount: project!.cards.length,
                     itemBuilder: (context, index) {
                       final card = project!.cards[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: CardThumbnail(frontImage: card.frontImage),
-                          title: Text(
-                            card.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('图鉴编号: #${card.pokedexNumber}'),
-                              Text('发行编号: ${card.issueNumber}'),
-                              Text('评级: ${card.grade}'),
-                              Text('入手时间: ${card.acquiredDate}'),
-                            ],
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '¥${card.currentPrice.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                ),
-                              ),
-                              PopupMenuButton<String>(
-                                onSelected: (value) async {
-                                  if (value == 'edit') {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EditCardPage(card: card),
-                                      ),
-                                    );
-                                    if (result == true && mounted) {
-                                      _loadProject();
-                                    }
-                                  } else if (value == 'delete') {
-                                    _showDeleteCardDialog(context, card.id!);
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) => [
-                                  const PopupMenuItem<String>(
-                                    value: 'edit',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.edit, size: 20),
-                                        SizedBox(width: 8),
-                                        Text('编辑'),
-                                      ],
-                                    ),
-                                  ),
-                                  PopupMenuItem<String>(
-                                    value: 'delete',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.delete, size: 20, color: Theme.of(context).colorScheme.error),
-                                        const SizedBox(width: 8),
-                                        Text('删除', style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                                child: const Icon(Icons.more_vert),
-                              ),
-                            ],
-                          ),
+                      return EntranceFader(
+                        index: index,
+                        child: CardWallTile(
+                          card: card,
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CardDetailPage(cardId: card.id!),
+                                builder: (context) =>
+                                    CardDetailPage(cardId: card.id!),
                               ),
                             );
                           },
+                          onEdit: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditCardPage(card: card),
+                              ),
+                            );
+                            if (result == true && mounted) {
+                              _loadProject();
+                            }
+                          },
+                          onDelete: () =>
+                              _showDeleteCardDialog(context, card.id!),
                         ),
                       );
                     },
                   ),
           ),
         ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

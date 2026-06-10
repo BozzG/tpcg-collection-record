@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/models/sort_option.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
 import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
+import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
+import 'package:tpcg_collection_record/views/widgets/micro_interactions.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 
 class CardListPage extends StatefulWidget {
   const CardListPage({super.key});
@@ -35,11 +39,24 @@ class _CardListPageState extends State<CardListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('卡片列表'),
+        actions: [
+          Consumer<CardViewModel>(
+            builder: (context, viewModel, _) {
+              final isWall = viewModel.viewMode == CardViewMode.wall;
+              return IconButton(
+                icon: Icon(isWall ? Icons.view_agenda_outlined : Icons.grid_view),
+                tooltip: isWall ? '切换为列表' : '切换为卡墙',
+                onPressed: viewModel.toggleViewMode,
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer<CardViewModel>(
         builder: (context, viewModel, child) {
           final colorScheme = Theme.of(context).colorScheme;
-          return Column(
+          return ShowcaseBackground(
+            child: Column(
             children: [
               // 搜索栏
               Padding(
@@ -106,126 +123,179 @@ class _CardListPageState extends State<CardListPage> {
               ),
               const SizedBox(height: 8),
 
-              // 卡片列表
+              // 卡片展示区：卡墙 / 列表 双形态
               Expanded(
                 child: viewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : viewModel.cards.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.credit_card_off,
-                                  size: 64,
-                                  color: colorScheme.outline,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  viewModel.searchQuery.isEmpty &&
-                                          !viewModel.hasActiveFilters
-                                      ? '还没有添加任何卡片'
-                                      : '没有找到匹配的卡片',
-                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: viewModel.cards.length,
-                            itemBuilder: (context, index) {
-                              final card = viewModel.cards[index];
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: ListTile(
-                                  leading: CardThumbnail(frontImage: card.frontImage),
-                                  title: Text(
-                                    card.name,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('图鉴编号: #${card.pokedexNumber}'),
-                                      Text('发行编号: ${card.issueNumber}'),
-                                      Text('评级: ${card.grade}'),
-                                      Text('入手时间: ${card.acquiredDate}'),
-                                    ],
-                                  ),
-                                  trailing: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        '¥${card.currentPrice.toStringAsFixed(2)}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: colorScheme.secondary,
-                                        ),
-                                      ),
-                                      PopupMenuButton<String>(
-                                        onSelected: (value) async {
-                                          if (value == 'edit') {
-                                            final result = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => EditCardPage(card: card),
-                                              ),
-                                            );
-                                            if (result == true && context.mounted) {
-                                              viewModel.loadAllCards();
-                                            }
-                                          } else if (value == 'delete') {
-                                            _showDeleteDialog(context, card.id!, viewModel);
-                                          }
-                                        },
-                                        itemBuilder: (BuildContext context) => [
-                                          const PopupMenuItem<String>(
-                                            value: 'edit',
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.edit, size: 20),
-                                                SizedBox(width: 8),
-                                                Text('编辑'),
-                                              ],
-                                            ),
-                                          ),
-                                          PopupMenuItem<String>(
-                                            value: 'delete',
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.delete, size: 20, color: colorScheme.error),
-                                                const SizedBox(width: 8),
-                                                Text('删除', style: TextStyle(color: colorScheme.error)),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                        child: const Icon(Icons.more_vert),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CardDetailPage(cardId: card.id!),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                        ? _buildEmptyState(context, viewModel, colorScheme)
+                        : viewModel.viewMode == CardViewMode.wall
+                            ? _buildWall(context, viewModel)
+                            : _buildList(context, viewModel, colorScheme),
               ),
             ],
+            ),
           );
         },
       ),
     );
+  }
+
+  /// 空态占位
+  Widget _buildEmptyState(
+      BuildContext context, CardViewModel viewModel, ColorScheme colorScheme) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.credit_card_off,
+            size: 64,
+            color: colorScheme.outline,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            viewModel.searchQuery.isEmpty && !viewModel.hasActiveFilters
+                ? '还没有添加任何卡片'
+                : '没有找到匹配的卡片',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 卡墙陈列：2 列竖版大图（SF1）
+  Widget _buildWall(BuildContext context, CardViewModel viewModel) {
+    return GridView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 5 / 7,
+      ),
+      itemCount: viewModel.cards.length,
+      itemBuilder: (context, index) {
+        final card = viewModel.cards[index];
+        return EntranceFader(
+          index: index,
+          child: CardWallTile(
+            card: card,
+            onTap: () => _openDetail(context, card.id!),
+            onEdit: () => _openEdit(context, card, viewModel),
+            onDelete: () => _showDeleteDialog(context, card.id!, viewModel),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 列表形态：信息密集，便于检索
+  Widget _buildList(
+      BuildContext context, CardViewModel viewModel, ColorScheme colorScheme) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: viewModel.cards.length,
+      itemBuilder: (context, index) {
+        final card = viewModel.cards[index];
+        return EntranceFader(
+          index: index,
+          child: Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: Hero(
+                tag: cardHeroTag(card.id),
+                child: CardThumbnail(frontImage: card.frontImage),
+              ),
+              title: Text(
+                card.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('图鉴编号: #${card.pokedexNumber}'),
+                  Text('发行编号: ${card.issueNumber}'),
+                  Text('评级: ${card.grade}'),
+                  Text('入手时间: ${card.acquiredDate}'),
+                ],
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '¥${card.currentPrice.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.secondary,
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _openEdit(context, card, viewModel);
+                      } else if (value == 'delete') {
+                        _showDeleteDialog(context, card.id!, viewModel);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      const PopupMenuItem<String>(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 20),
+                            SizedBox(width: 8),
+                            Text('编辑'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 20, color: colorScheme.error),
+                            const SizedBox(width: 8),
+                            Text('删除', style: TextStyle(color: colorScheme.error)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: const Icon(Icons.more_vert),
+                  ),
+                ],
+              ),
+              onTap: () => _openDetail(context, card.id!),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openDetail(BuildContext context, int cardId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardDetailPage(cardId: cardId),
+      ),
+    );
+  }
+
+  Future<void> _openEdit(
+      BuildContext context, TCGCard card, CardViewModel viewModel) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditCardPage(card: card),
+      ),
+    );
+    if (result == true && context.mounted) {
+      viewModel.loadAllCards();
+    }
   }
 
   Widget _buildFilterBar(BuildContext context, CardViewModel viewModel) {

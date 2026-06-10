@@ -4,7 +4,10 @@ import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
+import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
+import 'package:tpcg_collection_record/views/widgets/holo_flip_card.dart';
 import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 
 class CardDetailPage extends StatefulWidget {
   final int cardId;
@@ -83,7 +86,9 @@ class _CardDetailPageState extends State<CardDetailPage> {
         appBar: AppBar(
           title: const Text('卡片详情'),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const ShowcaseBackground(
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
 
@@ -92,8 +97,10 @@ class _CardDetailPageState extends State<CardDetailPage> {
         appBar: AppBar(
           title: const Text('卡片详情'),
         ),
-        body: const Center(
-          child: Text('卡片不存在'),
+        body: const ShowcaseBackground(
+          child: Center(
+            child: Text('卡片不存在'),
+          ),
         ),
       );
     }
@@ -118,7 +125,8 @@ class _CardDetailPageState extends State<CardDetailPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: ShowcaseBackground(
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,6 +143,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
             // 价值信息
             _buildValueInfoSection(),
           ],
+        ),
         ),
       ),
     );
@@ -166,9 +175,14 @@ class _CardDetailPageState extends State<CardDetailPage> {
   Widget _buildImageSection() {
     // 先收集需要显示的图片页面（与原逻辑一致，避免重复代码）
     final List<Widget> imagePages = [];
-    // 正面图片
+    // 正面图片：翻卡 3D + 触摸全息光泽（SF3 + SF4）
     if (card!.frontImage != null && card!.frontImage!.isNotEmpty) {
-      imagePages.add(_buildImageCard('正面', card!.frontImage!));
+      imagePages.add(
+        HoloFlipCard(
+          front: _buildFrontFlipFace(card!.frontImage!),
+          back: _buildCardBackPanel(),
+        ),
+      );
     } else {
       imagePages.add(_buildPlaceholderCard('正面'));
     }
@@ -308,6 +322,185 @@ class _CardDetailPageState extends State<CardDetailPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// 正面翻卡面：Hero 卡图 + 放大按钮 + 正面标签。
+  /// 全息光泽与「点击翻面」提示由外层 [HoloFlipCard] 叠加。
+  Widget _buildFrontFlipFace(String imagePath) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Hero(
+          tag: cardHeroTag(card!.id),
+          child: ImageFileWidget(
+            imageRef: imagePath,
+            fit: BoxFit.fitHeight,
+            width: double.infinity,
+            height: double.infinity,
+            placeholder: Container(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image,
+                        size: 48, color: Theme.of(context).colorScheme.outline),
+                    const SizedBox(height: 8),
+                    Text('图片已丢失',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        // 正面标签
+        Positioned(
+          bottom: 16,
+          left: 16,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Text(
+              '正面',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        // 放大查看按钮（独立 InkWell，点击放大而非翻面）
+        Positioned(
+          top: 16,
+          right: 16,
+          child: Material(
+            color: Colors.black54,
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => _showFullScreenImage(context, imagePath, '正面'),
+              child: const Padding(
+                padding: EdgeInsets.all(8),
+                child: Icon(Icons.zoom_in, color: Colors.white, size: 18),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 背面藏品档案面板：翻卡后展示，仿卡背质感汇总关键信息。
+  Widget _buildCardBackPanel() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final gradeColor = _getGradeColor(card!.grade);
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.surfaceContainerHigh,
+            colorScheme.surfaceContainer,
+          ],
+        ),
+        border: Border(
+          left: BorderSide(color: gradeColor, width: 4),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.shield_outlined, size: 20, color: gradeColor),
+              const SizedBox(width: 8),
+              Text(
+                '藏品档案',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _backRow('卡名', card!.name),
+                _backRow('图鉴编号', '#${card!.pokedexNumber}'),
+                _backRow('发行编号', card!.issueNumber),
+                _backRow('评级', card!.grade, valueColor: gradeColor),
+                _backRow(
+                  '当前估值',
+                  '¥${card!.currentPrice.toStringAsFixed(2)}',
+                  valueColor: colorScheme.secondary,
+                ),
+                _backRow('持有天数',
+                    '${_calculateHoldingDays(card!.acquiredDate)} 天'),
+              ],
+            ),
+          ),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.flip,
+                    size: 13, color: colorScheme.onSurfaceVariant),
+                const SizedBox(width: 4),
+                Text(
+                  '点击翻回正面',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _backRow(String label, String value, {Color? valueColor}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 72,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: valueColor ?? colorScheme.onSurface,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 

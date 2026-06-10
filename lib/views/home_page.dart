@@ -4,6 +4,7 @@ import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/theme_notifier.dart';
 import 'package:tpcg_collection_record/views/card_list_page.dart';
 import 'package:tpcg_collection_record/views/project_list_page.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 import 'package:tpcg_collection_record/views/widgets/value_card_carousel.dart';
 
 class HomePage extends StatefulWidget {
@@ -74,23 +75,25 @@ class _HomePageState extends State<HomePage> {
 
             return RefreshIndicator(
               onRefresh: viewModel.refresh,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 统计卡片区域
-                    _buildStatisticsSection(context, viewModel),
-                    const SizedBox(height: 24),
+              child: ShowcaseBackground(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 统计卡片区域
+                      _buildStatisticsSection(context, viewModel),
+                      const SizedBox(height: 24),
 
-                    // 高价值卡片
-                    _buildTopValueCardsSection(context, viewModel),
+                      // 高价值卡片
+                      _buildTopValueCardsSection(context, viewModel),
 
-                    // 添加底部安全间距
-                    SizedBox(
-                        height: MediaQuery.of(context).padding.bottom + 16),
-                  ],
+                      // 添加底部安全间距
+                      SizedBox(
+                          height: MediaQuery.of(context).padding.bottom + 16),
+                    ],
+                  ),
                 ),
               ),
             );

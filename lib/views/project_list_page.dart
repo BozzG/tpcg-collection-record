@@ -6,6 +6,7 @@ import 'package:tpcg_collection_record/views/project_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_project_page.dart';
 import 'package:tpcg_collection_record/views/add_project_page.dart';
 import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 
 class ProjectListPage extends StatefulWidget {
   const ProjectListPage({super.key});
@@ -40,7 +41,8 @@ class _ProjectListPageState extends State<ProjectListPage> {
       body: Consumer<ProjectViewModel>(
         builder: (context, viewModel, child) {
           final colorScheme = Theme.of(context).colorScheme;
-          return Column(
+          return ShowcaseBackground(
+            child: Column(
             children: [
               // 搜索栏
               Padding(
@@ -210,6 +212,7 @@ class _ProjectListPageState extends State<ProjectListPage> {
                                   ),
               ),
             ],
+          ),
           );
         },
       ),

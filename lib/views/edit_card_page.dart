@@ -8,6 +8,7 @@ import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/services/image_service.dart';
 import 'package:tpcg_collection_record/utils/grade_utils.dart';
 import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
+import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
 
 class EditCardPage extends StatefulWidget {
   final TCGCard? card;
@@ -112,7 +113,8 @@ class _EditCardPageState extends State<EditCardPage> {
           ),
         ],
       ),
-      body: Form(
+      body: ShowcaseBackground(
+        child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -131,6 +133,7 @@ class _EditCardPageState extends State<EditCardPage> {
               _buildImageSection(),
             ],
           ),
+        ),
         ),
       ),
     );
