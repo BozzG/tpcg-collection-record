@@ -46,6 +46,25 @@ class ShowcaseBackground extends StatelessWidget {
                 ),
               ),
             ),
+          )
+        // CV5：亮色模式「展柜玻璃」顶光，极淡白色高光，保证可读性
+        else
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0, -1.2),
+                    radius: 1.2,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.55),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 1.0],
+                  ),
+                ),
+              ),
+            ),
           ),
 
         // 内容

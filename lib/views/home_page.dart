@@ -5,6 +5,7 @@ import 'package:tpcg_collection_record/viewmodels/theme_notifier.dart';
 import 'package:tpcg_collection_record/views/card_list_page.dart';
 import 'package:tpcg_collection_record/views/project_list_page.dart';
 import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
+import 'package:tpcg_collection_record/views/widgets/skeleton_loader.dart';
 import 'package:tpcg_collection_record/views/widgets/value_card_carousel.dart';
 
 class HomePage extends StatefulWidget {
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
         child: Consumer<HomeViewModel>(
           builder: (context, viewModel, child) {
             if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const ShowcaseBackground(child: HomeSkeleton());
             }
 
             return RefreshIndicator(

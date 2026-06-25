@@ -8,6 +8,7 @@ class GradeColors extends ThemeExtension<GradeColors> {
     required this.tier2,
     required this.tier3,
     required this.tier4,
+    required this.tierGold,
     required this.tierDefault,
   });
 
@@ -15,17 +16,19 @@ class GradeColors extends ThemeExtension<GradeColors> {
   final Color tier2;       // 紫10 — 二级
   final Color tier3;       // 蓝9  — 三级
   final Color tier4;       // 绿8  — 四级
+  final Color tierGold;    // 金10 — 金色专属档（介于黑10与紫10之间的稀有档）
   final Color tierDefault; // 默认/未评级
 
   @override
   GradeColors copyWith({
-    Color? tier1, Color? tier2, Color? tier3, Color? tier4, Color? tierDefault,
+    Color? tier1, Color? tier2, Color? tier3, Color? tier4, Color? tierGold, Color? tierDefault,
   }) {
     return GradeColors(
       tier1: tier1 ?? this.tier1,
       tier2: tier2 ?? this.tier2,
       tier3: tier3 ?? this.tier3,
       tier4: tier4 ?? this.tier4,
+      tierGold: tierGold ?? this.tierGold,
       tierDefault: tierDefault ?? this.tierDefault,
     );
   }
@@ -38,6 +41,7 @@ class GradeColors extends ThemeExtension<GradeColors> {
       tier2: Color.lerp(tier2, other.tier2, t)!,
       tier3: Color.lerp(tier3, other.tier3, t)!,
       tier4: Color.lerp(tier4, other.tier4, t)!,
+      tierGold: Color.lerp(tierGold, other.tierGold, t)!,
       tierDefault: Color.lerp(tierDefault, other.tierDefault, t)!,
     );
   }
@@ -232,13 +236,14 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      // Decision-05：GradeColors v2.0 五档锁定
+      // Decision-05：GradeColors v2.0 六档锁定（新增金10专属金色档）
       extensions: const <ThemeExtension<dynamic>>[
         GradeColors(
           tier1: Color(0xFF060606),       // 黑10
           tier2: Color(0xFF1B1A57),       // 紫10（与 primary 一致）
           tier3: Color(0xFF457B9D),       // 蓝9
           tier4: Color(0xFF2E7D5B),       // 绿8
+          tierGold: Color(0xFFC9A227),    // 金10（古金色）
           tierDefault: Color(0xFFE67B3B), // 默认（与 secondary 一致）
         ),
       ],
@@ -427,13 +432,14 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      // GradeColors 五档颜色保持不变（lerp 自动过渡）
+      // GradeColors 六档颜色（lerp 自动过渡）；金10 暗色略提亮
       extensions: const <ThemeExtension<dynamic>>[
         GradeColors(
           tier1: Color(0xFF060606),       // 黑10
           tier2: Color(0xFF1B1A57),       // 紫10
           tier3: Color(0xFF457B9D),       // 蓝9
           tier4: Color(0xFF2E7D5B),       // 绿8
+          tierGold: Color(0xFFE0B84A),    // 金10（暗底提亮金）
           tierDefault: Color(0xFFE67B3B), // 默认
         ),
       ],

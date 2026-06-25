@@ -9,6 +9,7 @@ import 'package:tpcg_collection_record/views/widgets/card_thumbnail.dart';
 import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
 import 'package:tpcg_collection_record/views/widgets/micro_interactions.dart';
 import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
+import 'package:tpcg_collection_record/views/widgets/skeleton_loader.dart';
 
 class CardListPage extends StatefulWidget {
   const CardListPage({super.key});
@@ -126,7 +127,7 @@ class _CardListPageState extends State<CardListPage> {
               // 卡片展示区：卡墙 / 列表 双形态
               Expanded(
                 child: viewModel.isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const CardWallSkeleton()
                     : viewModel.cards.isEmpty
                         ? _buildEmptyState(context, viewModel, colorScheme)
                         : viewModel.viewMode == CardViewMode.wall

@@ -4,7 +4,9 @@ import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
+import 'package:tpcg_collection_record/utils/grade_utils.dart';
 import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
+import 'package:tpcg_collection_record/views/widgets/grade_badge.dart';
 import 'package:tpcg_collection_record/views/widgets/holo_flip_card.dart';
 import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
 import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
@@ -582,14 +584,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
   Color _getGradeColor(String? grade) {
     final gc = Theme.of(context).extension<GradeColors>()!;
     if (grade == null) return gc.tierDefault;
-    final g = grade.toUpperCase();
-    if (g.contains('10') && (g.contains('PSA') || g.contains('BGS') || g.contains('CCIC') || g.contains('CGC'))) {
-      if (g.contains('金10') || g.contains('黑10') || g.contains('GOLD')) return gc.tier1;
-      return gc.tier2;
-    }
-    if (g.contains('9')) return gc.tier3;
-    if (g.contains('8')) return gc.tier4;
-    return gc.tierDefault;
+    return GradeUtils.tierColor(grade, gc);
   }
 
   Widget _buildBasicInfoSection() {
@@ -607,27 +602,7 @@ class _CardDetailPageState extends State<CardDetailPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _getGradeColor(card!.grade).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _getGradeColor(card!.grade),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  card!.grade,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: _getGradeColor(card!.grade),
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
+              GradeBadge(grade: card!.grade),
               const Spacer(),
               Text(
                 '¥${card!.currentPrice.toStringAsFixed(2)}',

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
-import 'package:tpcg_collection_record/theme/app_theme.dart';
+import 'package:tpcg_collection_record/views/widgets/grade_badge.dart';
 import 'package:tpcg_collection_record/views/widgets/image_file_widget.dart';
 import 'package:tpcg_collection_record/views/widgets/micro_interactions.dart';
+import 'package:tpcg_collection_record/views/widgets/rarity_halo.dart';
 
 /// 全局统一的卡面 Hero 过渡标签，保证列表/卡墙 → 详情的飞入动画连贯。
 String cardHeroTag(int? id) => 'cardHero_${id ?? 'unknown'}';
@@ -26,58 +27,64 @@ class CardWallTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final gradeColors = Theme.of(context).extension<GradeColors>()!;
 
     return PressableScale(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: colorScheme.outline, width: 1.0),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.12),
-              offset: const Offset(0, 3),
-              blurRadius: 8,
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: AspectRatio(
-          aspectRatio: 5 / 7,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // 卡面图（Hero 飞入详情）
-              Hero(
-                tag: cardHeroTag(card.id),
-                child: _buildImage(context, colorScheme),
-              ),
-
-              // 底部渐变 + 信息条
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _buildInfoBar(context, colorScheme),
-              ),
-
-              // 评级徽章
-              if (card.grade.isNotEmpty)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: _buildGradeBadge(colorScheme, gradeColors),
-                ),
-
-              // 编辑/删除菜单
-              Positioned(
-                top: 2,
-                right: 2,
-                child: _buildMenu(context, colorScheme),
+      child: RarityHalo(
+        grade: card.grade,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colorScheme.outline, width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.12),
+                offset: const Offset(0, 3),
+                blurRadius: 8,
               ),
             ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: AspectRatio(
+            aspectRatio: 5 / 7,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // 卡面图（Hero 飞入详情）
+                Hero(
+                  tag: cardHeroTag(card.id),
+                  child: _buildImage(context, colorScheme),
+                ),
+
+                // 卡套反光高光（实体感）
+                const Positioned.fill(child: _CardGloss()),
+
+                // 底部渐变 + 信息条
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: _buildInfoBar(context, colorScheme),
+                ),
+
+                // 评级鉴定标签
+                if (card.grade.isNotEmpty)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: GradeBadge(grade: card.grade, compact: true),
+                  ),
+
+                // 编辑/删除菜单
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: _buildMenu(context, colorScheme),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -157,25 +164,6 @@ class CardWallTile extends StatelessWidget {
     );
   }
 
-  Widget _buildGradeBadge(ColorScheme colorScheme, GradeColors gradeColors) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: _resolveGradeColor(card.grade, gradeColors),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outline, width: 1.0),
-      ),
-      child: Text(
-        card.grade,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w800,
-          fontSize: 10,
-        ),
-      ),
-    );
-  }
-
   Widget _buildMenu(BuildContext context, ColorScheme colorScheme) {
     return PopupMenuButton<String>(
       tooltip: '更多操作',
@@ -218,12 +206,27 @@ class CardWallTile extends StatelessWidget {
       ],
     );
   }
+}
 
-  Color _resolveGradeColor(String grade, GradeColors gradeColors) {
-    if (grade.contains('10')) return gradeColors.tier1;
-    if (grade.contains('9')) return gradeColors.tier2;
-    if (grade.contains('8')) return gradeColors.tier3;
-    if (grade.contains('7')) return gradeColors.tier4;
-    return gradeColors.tierDefault;
+/// 卡套反光高光：左上→中心的极轻线性高光，模拟卡进卡砖的反光质感。
+class _CardGloss extends StatelessWidget {
+  const _CardGloss();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.center,
+            colors: [
+              Colors.white.withValues(alpha: 0.14),
+              Colors.transparent,
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
