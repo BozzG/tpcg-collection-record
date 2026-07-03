@@ -50,6 +50,53 @@ class GradeColors extends ThemeExtension<GradeColors> {
 class AppTheme {
   AppTheme._();
 
+  /// 中文字体兜底链：拉丁主字体仍用 Roboto，中文字符在 Roboto 缺字形时
+  /// 依次回退到各平台系统中文字体（iOS/macOS: PingFang SC；Windows: Microsoft YaHei；
+  /// Android/其它: Noto Sans (CJK) SC / 思源黑体）。不打包字体二进制，零体积成本。
+  static const List<String> fontFamilyFallback = <String>[
+    'PingFang SC',
+    'Heiti SC',
+    'Microsoft YaHei',
+    'Noto Sans SC',
+    'Noto Sans CJK SC',
+    'Source Han Sans SC',
+    'sans-serif',
+  ];
+
+  /// 共用文本主题：原字号/字重不变，统一注入中文字体兜底链，深浅色共享。
+  static final TextTheme _textTheme = const TextTheme(
+    headlineMedium: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 22,
+      fontWeight: FontWeight.w800,
+    ),
+    titleLarge: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 18,
+      fontWeight: FontWeight.w800,
+    ),
+    titleMedium: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    ),
+    bodyLarge: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    ),
+    labelLarge: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    ),
+  ).apply(fontFamilyFallback: fontFamilyFallback);
+
   static ThemeData light() {
     // v2.0：显式 16 槽位 ColorScheme（街头潮玩 × 收藏卡牌）
     const colorScheme = ColorScheme(
@@ -91,6 +138,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      fontFamilyFallback: fontFamilyFallback,
       scaffoldBackgroundColor: const Color(0xFF989C94), // 灰绿桌面
       // Decision-01：AppBar 实色 #1B1A57 包装顶饰条
       appBarTheme: const AppBarTheme(
@@ -204,38 +252,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(28),
         ),
       ),
-      textTheme: const TextTheme(
-        headlineMedium: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-        ),
-        titleLarge: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 18,
-          fontWeight: FontWeight.w800,
-        ),
-        titleMedium: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        bodyLarge: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-        bodyMedium: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-        labelLarge: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      textTheme: _textTheme,
       // Decision-05：GradeColors v2.0 六档锁定（新增金10专属金色档）
       extensions: const <ThemeExtension<dynamic>>[
         GradeColors(
@@ -291,6 +308,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      fontFamilyFallback: fontFamilyFallback,
       scaffoldBackgroundColor: const Color(0xFF1A1A1E), // 深灰绿暗底
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF1B1A57),   // 保持紫蓝
@@ -400,38 +418,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(28),
         ),
       ),
-      textTheme: const TextTheme(
-        headlineMedium: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-        ),
-        titleLarge: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 18,
-          fontWeight: FontWeight.w800,
-        ),
-        titleMedium: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        bodyLarge: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-        bodyMedium: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-        labelLarge: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      textTheme: _textTheme,
       // GradeColors 六档颜色（lerp 自动过渡）；金10 暗色略提亮
       extensions: const <ThemeExtension<dynamic>>[
         GradeColors(

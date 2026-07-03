@@ -7,6 +7,7 @@ import 'package:tpcg_collection_record/views/edit_project_page.dart';
 import 'package:tpcg_collection_record/views/add_card_page.dart';
 import 'package:tpcg_collection_record/views/card_detail_page.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
+import 'package:tpcg_collection_record/views/share_preview_page.dart';
 import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
 import 'package:tpcg_collection_record/views/widgets/micro_interactions.dart';
 import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
@@ -71,6 +72,23 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       appBar: AppBar(
         title: Text(project!.name),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share),
+            tooltip: '分享项目',
+            onPressed: project!.cards.isEmpty
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SharePreviewPage.project(
+                          project!,
+                          project!.cards,
+                        ),
+                      ),
+                    );
+                  },
+          ),
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {

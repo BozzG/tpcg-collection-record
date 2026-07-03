@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tpcg_collection_record/theme/app_theme.dart';
 
+/// 评级档位（用于配色与分布统计的统一归类）。
+enum GradeTier { black10, gold10, ten, nine, eight, other }
+
 class GradeUtils {
   static const List<String> grades = [
     'PSA 1',
@@ -75,15 +78,55 @@ class GradeUtils {
   /// 9 → tier3、8 → tier4，其余 → tierDefault。
   /// 适用于所有评级机构（PSA/BGS/CGC/CCIC/PCG…）。
   /// 注：PSA 10 视为金10 级别，单独走金色档。
-  static Color tierColor(String grade, GradeColors c) {
-    if (grade.contains('黑10')) return c.tier1;
-    if (grade.contains('金10')) return c.tierGold;
-    if (grade.contains('PSA 10')) return c.tierGold; // PSA 10 当作金10 处理
-    if (grade.contains('10')) return c.tier2; // 含银10与其余普通10
-    if (grade.contains('9')) return c.tier3;
-    if (grade.contains('8')) return c.tier4;
-    return c.tierDefault;
+  static GradeTier tierOf(String grade) {
+    if (grade.contains('黑10')) return GradeTier.black10;
+    if (grade.contains('金10')) return GradeTier.gold10;
+    if (grade.contains('PSA 10')) return GradeTier.gold10; // PSA 10 当作金10
+    if (grade.contains('10')) return GradeTier.ten; // 含银10与其余普通10
+    if (grade.contains('9')) return GradeTier.nine;
+    if (grade.contains('8')) return GradeTier.eight;
+    return GradeTier.other;
   }
+
+  /// 档位 → 颜色（取自当前主题的 GradeColors）。
+  static Color tierColorOf(GradeTier tier, GradeColors c) {
+    switch (tier) {
+      case GradeTier.black10:
+        return c.tier1;
+      case GradeTier.gold10:
+        return c.tierGold;
+      case GradeTier.ten:
+        return c.tier2;
+      case GradeTier.nine:
+        return c.tier3;
+      case GradeTier.eight:
+        return c.tier4;
+      case GradeTier.other:
+        return c.tierDefault;
+    }
+  }
+
+  /// 档位 → 简短中文标签（用于分布图例）。
+  static String tierLabel(GradeTier tier) {
+    switch (tier) {
+      case GradeTier.black10:
+        return '黑10';
+      case GradeTier.gold10:
+        return '金10';
+      case GradeTier.ten:
+        return '满分10';
+      case GradeTier.nine:
+        return '9 分';
+      case GradeTier.eight:
+        return '8 分';
+      case GradeTier.other:
+        return '其他';
+    }
+  }
+
+  /// 评级字符串 → 颜色（先归档再取色）。
+  static Color tierColor(String grade, GradeColors c) =>
+      tierColorOf(tierOf(grade), c);
 
   /// 是否为顶级稀有评级（用于稀有度光环）：黑10 / 金10 / 任意满分10。
   static bool isTopRarity(String grade) {

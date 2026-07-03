@@ -598,4 +598,87 @@ class DatabaseService {
         await db.rawQuery('SELECT SUM(acquired_price) as total FROM cards');
     return (result.first['total'] as double?) ?? 0.0;
   }
+
+  /// 全量评级分布：grade 字符串 → 卡片数量（用于首页评级分布统计）。
+  Future<Map<String, int>> getGradeDistribution() async {
+    final db = await database;
+    final result = await db
+        .rawQuery('SELECT grade, COUNT(*) as count FROM cards GROUP BY grade');
+    final map = <String, int>{};
+    for (final row in result) {
+      final grade = (row['grade'] as String?) ?? '';
+      map[grade] = (row['count'] as int?) ?? 0;
+    }
+    return map;
+  }
+
+  // 备份 / 恢复相关操作
+
+  /// 导出全量数据为可序列化结构（直接取原始表行，保留 id / sort_order / 所有列）。
+  Future<Map<String, dynamic>> exportBackup() async {
+    final db = await database;
+    final projects = await db.query('projects', orderBy: 'sort_order ASC');
+    final cards = await db.query('cards', orderBy: 'id ASC');
+    return {
+      'projects': projects,
+      'cards': cards,
+    };
+  }
+
+  /// 从备份数据整体恢复（先清空再按原始行重建，单事务保证原子性）。
+  /// 自动按当前表结构过滤未知列，兼容「新版本导出 → 老版本 App 导入」场景。
+  /// 返回恢复的 (项目数, 卡片数)。
+  Future<({int projects, int cards})> importBackup({
+    required List<Map<String, dynamic>> projects,
+    required List<Map<String, dynamic>> cards,
+  }) async {
+    final db = await database;
+    // 读取当前表列名作为白名单，自动跟随升级新增列；老备份里多出的列会被丢弃。
+    final projectCols = await _tableColumnNames('projects');
+    final cardCols = await _tableColumnNames('cards');
+    int droppedProjectCols = 0;
+    int droppedCardCols = 0;
+    await db.transaction((txn) async {
+      await txn.delete('cards');
+      await txn.delete('projects');
+      for (final row in projects) {
+        final filtered = _filterUnknownColumns(row, projectCols, dropped: (n) => droppedProjectCols += n);
+        if (filtered.isNotEmpty) await txn.insert('projects', filtered);
+      }
+      for (final row in cards) {
+        final filtered = _filterUnknownColumns(row, cardCols, dropped: (n) => droppedCardCols += n);
+        if (filtered.isNotEmpty) await txn.insert('cards', filtered);
+      }
+    });
+    Log.info('备份恢复完成：项目 ${projects.length}，卡片 ${cards.length}'
+        '（丢弃未知列：项目 $droppedProjectCols 个、卡片 $droppedCardCols 个）');
+    return (projects: projects.length, cards: cards.length);
+  }
+
+  /// 读取 [table] 的当前列名集合（用于备份恢复时按当前表结构过滤未知列）。
+  Future<Set<String>> _tableColumnNames(String table) async {
+    final db = await database;
+    final rows = await db.rawQuery('PRAGMA table_info($table)');
+    return rows.map((r) => r['name'] as String).toSet();
+  }
+
+  /// 按 [allowed] 白名单过滤 [row] 中的未知列；每丢弃一列通过 [dropped] 回调计数。
+  /// 返回新的可变 Map（原 [row] 不被修改）。
+  Map<String, Object?> _filterUnknownColumns(
+    Map<String, dynamic> row,
+    Set<String> allowed, {
+    required void Function(int count) dropped,
+  }) {
+    final out = <String, Object?>{};
+    int droppedHere = 0;
+    for (final entry in row.entries) {
+      if (allowed.contains(entry.key)) {
+        out[entry.key] = entry.value;
+      } else {
+        droppedHere++;
+      }
+    }
+    if (droppedHere > 0) dropped(droppedHere);
+    return out;
+  }
 }

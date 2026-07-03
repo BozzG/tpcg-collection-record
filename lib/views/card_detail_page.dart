@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
 import 'package:tpcg_collection_record/views/edit_card_page.dart';
+import 'package:tpcg_collection_record/views/share_preview_page.dart';
 import 'package:tpcg_collection_record/views/widgets/card_wall_tile.dart';
 import 'package:tpcg_collection_record/views/widgets/grade_badge.dart';
 import 'package:tpcg_collection_record/views/widgets/holo_flip_card.dart';
@@ -109,6 +110,18 @@ class _CardDetailPageState extends State<CardDetailPage> {
       appBar: AppBar(
         title: Text(card!.name),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share),
+            tooltip: '分享藏品',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SharePreviewPage.card(card!),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {

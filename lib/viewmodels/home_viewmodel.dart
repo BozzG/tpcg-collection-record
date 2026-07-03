@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tpcg_collection_record/models/ptcg_card.dart';
 import 'package:tpcg_collection_record/services/database_service.dart';
+import 'package:tpcg_collection_record/utils/grade_utils.dart';
 import 'package:tpcg_collection_record/utils/logger.dart';
 
 /// 首页轮播排序模式
@@ -25,6 +26,7 @@ class HomeViewModel extends ChangeNotifier {
   int _projectCount = 0;
   double _totalValue = 0.0;
   double _totalCost = 0.0;
+  Map<GradeTier, int> _gradeTierCounts = const {};
   List<TCGCard> _topValueCards = [];
   List<TCGCard> _recentAcquiredCards = [];
   bool _recentLoaded = false;
@@ -35,6 +37,16 @@ class HomeViewModel extends ChangeNotifier {
   int get projectCount => _projectCount;
   double get totalValue => _totalValue;
   double get totalCost => _totalCost;
+
+  /// 总收益（当前总价值 − 总花费），可为负。
+  double get totalProfit => _totalValue - _totalCost;
+
+  /// 总收益率（相对总花费）；无花费时返回 0。
+  double get profitRate => _totalCost > 0 ? totalProfit / _totalCost : 0.0;
+
+  /// 评级档位分布（档位 → 卡片数），按全量卡片统计。
+  Map<GradeTier, int> get gradeTierCounts => _gradeTierCounts;
+
   List<TCGCard> get topValueCards => _topValueCards;
   bool get isLoading => _isLoading;
 
@@ -71,7 +83,8 @@ class HomeViewModel extends ChangeNotifier {
       _projectCount = await _databaseService.getTotalProjectCount();
       _totalValue = await _databaseService.getTotalValue();
       _totalCost = await _databaseService.getTotalCost();
-      
+      _gradeTierCounts = await _loadGradeTierCounts();
+
       Log.info('统计数据加载成功 - 卡片数: $_cardCount, 项目数: $_projectCount, 总价值: $_totalValue, 总花费: $_totalCost');
     } catch (e, stackTrace) {
       Log.error('加载统计数据时发生错误', e, stackTrace);
@@ -81,6 +94,17 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
+  /// 读取全量评级分布并按档位归并（黑10/金10/满分10/9/8/其他）。
+  Future<Map<GradeTier, int>> _loadGradeTierCounts() async {
+    final dist = await _databaseService.getGradeDistribution();
+    final counts = <GradeTier, int>{};
+    dist.forEach((grade, count) {
+      final tier = GradeUtils.tierOf(grade);
+      counts[tier] = (counts[tier] ?? 0) + count;
+    });
+    return counts;
+  }
+
   Future<void> loadTopValueCards() async {
     try {
       Log.debug('开始加载高价值卡片');
