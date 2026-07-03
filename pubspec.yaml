@@ -3,7 +3,7 @@ description: A Trading Card Collection Management App
 
 publish_to: 'none'
 
-version: 2.5.0+17
+version: 2.5.0+18
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -46,7 +46,9 @@ dependencies:
   shared_preferences: ^2.2.2
 
   # 系统分享面板（导出/分享藏品长图；纯系统行为，不联网）
-  share_plus: ^7.2.2
+  # 锁定 >=10.1.0 <11.0.0：内置 iOS/macOS 隐私清单(PrivacyInfo.xcprivacy)以满足 App Store
+  # ITMS-91061 要求；同时避开 11.0 的 SharePlus 破坏性 API 变更，保留 Share.shareXFiles 用法。
+  share_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:
