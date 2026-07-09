@@ -4,6 +4,7 @@ import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/theme_notifier.dart';
 import 'package:tpcg_collection_record/views/backup_page.dart';
 import 'package:tpcg_collection_record/views/card_list_page.dart';
+import 'package:tpcg_collection_record/views/pokedex_page.dart';
 import 'package:tpcg_collection_record/views/project_list_page.dart';
 import 'package:tpcg_collection_record/views/widgets/collection_dashboard.dart';
 import 'package:tpcg_collection_record/views/widgets/showcase_background.dart';
@@ -97,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       // 统计卡片区域
                       _buildStatisticsSection(context, viewModel),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
 
                       // 高价值卡片
                       _buildTopValueCardsSection(context, viewModel),
@@ -125,7 +126,8 @@ class _HomePageState extends State<HomePage> {
       profitRate: viewModel.profitRate,
       cardCount: viewModel.cardCount,
       projectCount: viewModel.projectCount,
-      gradeTierCounts: viewModel.gradeTierCounts,
+      pokedexCollected: viewModel.collectedPokedexCount,
+      pokedexTotal: viewModel.pokedexTotal,
       onTapCards: () {
         Navigator.push(
           context,
@@ -136,6 +138,12 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProjectListPage()),
+        );
+      },
+      onTapPokedex: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const PokedexPage()),
         );
       },
     );

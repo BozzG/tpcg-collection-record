@@ -379,7 +379,7 @@ class _EditCardPageState extends State<EditCardPage> {
               });
             }),
             const SizedBox(height: 16),
-            _buildImageUpload('评级图片', _gradeImagePath, (path) {
+            _buildImageUpload('实物图片', _gradeImagePath, (path) {
               setState(() {
                 _gradeImagePath = path;
               });

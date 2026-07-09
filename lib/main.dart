@@ -5,6 +5,7 @@ import 'package:tpcg_collection_record/services/database_service.dart';
 import 'package:tpcg_collection_record/services/image_service.dart';
 import 'package:tpcg_collection_record/viewmodels/home_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/card_viewmodel.dart';
+import 'package:tpcg_collection_record/viewmodels/pokedex_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/project_viewmodel.dart';
 import 'package:tpcg_collection_record/viewmodels/theme_notifier.dart';
 import 'package:tpcg_collection_record/views/home_page.dart';
@@ -196,6 +197,9 @@ class _AppInitializerState extends State<AppInitializer> {
         ),
         ChangeNotifierProvider(
           create: (context) => CardViewModel(databaseService!),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PokedexViewModel(databaseService!),
         ),
         ChangeNotifierProvider(
           create: (context) => ProjectViewModel(databaseService!),

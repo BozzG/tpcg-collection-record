@@ -209,9 +209,9 @@ class _CardDetailPageState extends State<CardDetailPage> {
       imagePages.add(_buildPlaceholderCard('正面'));
     }
 
-    // 评级图片（背面图不再作为独立滑页，仅通过翻面查看）
+    // 实物图片（原「评级」图位，实际多用于上传实物/手持照；背面图仅通过翻面查看）
     if (card!.gradeImage != null && card!.gradeImage!.isNotEmpty) {
-      imagePages.add(_buildImageCard('评级', card!.gradeImage!));
+      imagePages.add(_buildImageCard('实物', card!.gradeImage!));
     }
 
     // 外层用 Stack 包裹：PageView + 左右箭头

@@ -585,6 +585,17 @@ class DatabaseService {
     return result.first['count'] as int;
   }
 
+  /// 已收集的全国图鉴编号数（去重，仅统计有效范围 1..1025）。
+  /// 用于首页图鉴入口的收集进度展示。
+  Future<int> getCollectedPokedexCount() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      'SELECT COUNT(DISTINCT pokedex_number) as count FROM cards '
+      'WHERE pokedex_number BETWEEN 1 AND 1025',
+    );
+    return (result.first['count'] as int?) ?? 0;
+  }
+
   Future<double> getTotalValue() async {
     final db = await database;
     final result =
@@ -597,19 +608,6 @@ class DatabaseService {
     final result =
         await db.rawQuery('SELECT SUM(acquired_price) as total FROM cards');
     return (result.first['total'] as double?) ?? 0.0;
-  }
-
-  /// 全量评级分布：grade 字符串 → 卡片数量（用于首页评级分布统计）。
-  Future<Map<String, int>> getGradeDistribution() async {
-    final db = await database;
-    final result = await db
-        .rawQuery('SELECT grade, COUNT(*) as count FROM cards GROUP BY grade');
-    final map = <String, int>{};
-    for (final row in result) {
-      final grade = (row['grade'] as String?) ?? '';
-      map[grade] = (row['count'] as int?) ?? 0;
-    }
-    return map;
   }
 
   // 备份 / 恢复相关操作

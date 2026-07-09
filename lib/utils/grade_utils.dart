@@ -74,14 +74,15 @@ class GradeUtils {
   /// 全局唯一的评级配色解析。
   ///
   /// 优先级（先特后泛，避免 `contains('10')` 抢先命中金/黑10）：
-  /// 黑10 → tier1（最高）、金10 / PSA 10 → tierGold、银10/其余普通10 → tier2、
+  /// 黑10 → tier1（最高）、金10 / PSA 10 / BGS 10 → tierGold、银10/其余普通10 → tier2、
   /// 9 → tier3、8 → tier4，其余 → tierDefault。
   /// 适用于所有评级机构（PSA/BGS/CGC/CCIC/PCG…）。
-  /// 注：PSA 10 视为金10 级别，单独走金色档。
+  /// 注：PSA 10、BGS 10 视为金10 级别，单独走金色档。
   static GradeTier tierOf(String grade) {
     if (grade.contains('黑10')) return GradeTier.black10;
     if (grade.contains('金10')) return GradeTier.gold10;
     if (grade.contains('PSA 10')) return GradeTier.gold10; // PSA 10 当作金10
+    if (grade.contains('BGS 10')) return GradeTier.gold10; // BGS 10 当作金10
     if (grade.contains('10')) return GradeTier.ten; // 含银10与其余普通10
     if (grade.contains('9')) return GradeTier.nine;
     if (grade.contains('8')) return GradeTier.eight;
@@ -103,24 +104,6 @@ class GradeUtils {
         return c.tier4;
       case GradeTier.other:
         return c.tierDefault;
-    }
-  }
-
-  /// 档位 → 简短中文标签（用于分布图例）。
-  static String tierLabel(GradeTier tier) {
-    switch (tier) {
-      case GradeTier.black10:
-        return '黑10';
-      case GradeTier.gold10:
-        return '金10';
-      case GradeTier.ten:
-        return '满分10';
-      case GradeTier.nine:
-        return '9 分';
-      case GradeTier.eight:
-        return '8 分';
-      case GradeTier.other:
-        return '其他';
     }
   }
 

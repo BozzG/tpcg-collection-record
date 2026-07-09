@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tpcg_collection_record/theme/app_theme.dart';
-import 'package:tpcg_collection_record/utils/grade_utils.dart';
 
-/// 首页藏品仪表盘：总价值 Hero 区 + 收益涨跌 + 评级分布迷你条形。
+/// 首页藏品仪表盘：总价值 Hero 区 + 收益涨跌 + 卡片/项目迷你指标。
 ///
 /// 仅基于当下快照数据（不依赖历史）。深色 Hero 卡固定潮玩配色，
-/// 保证明暗模式下观感一致；下方迷你指标与分布条沿用主题 token。
+/// 保证明暗模式下观感一致；下方迷你指标沿用主题 token。
+/// 设计目标：整块高度紧凑，配合下方轮播实现首页免滚动一屏可见。
 class CollectionDashboard extends StatelessWidget {
   const CollectionDashboard({
     super.key,
@@ -15,9 +14,11 @@ class CollectionDashboard extends StatelessWidget {
     required this.profitRate,
     required this.cardCount,
     required this.projectCount,
-    required this.gradeTierCounts,
+    required this.pokedexCollected,
+    required this.pokedexTotal,
     this.onTapCards,
     this.onTapProjects,
+    this.onTapPokedex,
   });
 
   final double totalValue;
@@ -26,9 +27,11 @@ class CollectionDashboard extends StatelessWidget {
   final double profitRate;
   final int cardCount;
   final int projectCount;
-  final Map<GradeTier, int> gradeTierCounts;
+  final int pokedexCollected;
+  final int pokedexTotal;
   final VoidCallback? onTapCards;
   final VoidCallback? onTapProjects;
+  final VoidCallback? onTapPokedex;
 
   // Hero 卡固定潮玩深色
   static const Color _heroTop = Color(0xFF14132E);
@@ -53,8 +56,6 @@ class CollectionDashboard extends StatelessWidget {
         _buildHeroValueCard(context),
         const SizedBox(height: 12),
         _buildMiniStatsRow(context),
-        const SizedBox(height: 18),
-        _buildGradeDistribution(context),
       ],
     );
   }
@@ -154,12 +155,18 @@ class CollectionDashboard extends StatelessWidget {
             value: '$cardCount',
             icon: Icons.credit_card,
             onTap: onTapCards),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         _miniStat(context,
             label: '项目数',
             value: '$projectCount',
             icon: Icons.folder,
             onTap: onTapProjects),
+        const SizedBox(width: 8),
+        _miniStat(context,
+            label: '图鉴',
+            value: '$pokedexCollected/$pokedexTotal',
+            icon: Icons.catching_pokemon,
+            onTap: onTapPokedex),
       ],
     );
   }
@@ -180,7 +187,7 @@ class CollectionDashboard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: colorScheme.outline, width: 1.0),
@@ -188,115 +195,39 @@ class CollectionDashboard extends StatelessWidget {
             child: Row(
               children: [
                 Icon(icon, size: 20, color: colorScheme.primary),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(label,
-                        style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize: 12)),
-                    const SizedBox(height: 2),
-                    Text(value,
-                        style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900)),
-                  ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 12)),
+                      const SizedBox(height: 2),
+                      // 三列并排时数值可能较长（如「320/1025」），
+                      // 用 FittedBox 缩放避免小屏溢出。
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(value,
+                            maxLines: 1,
+                            style: TextStyle(
+                                color: colorScheme.onSurface,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900)),
+                      ),
+                    ],
+                  ),
                 ),
-                if (onTap != null) ...[
-                  const Spacer(),
-                  Icon(Icons.chevron_right,
-                      size: 18, color: colorScheme.onSurfaceVariant),
-                ],
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildGradeDistribution(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final gradeColors = Theme.of(context).extension<GradeColors>()!;
-    final textTheme = Theme.of(context).textTheme;
-
-    final total = gradeTierCounts.values.fold<int>(0, (s, v) => s + v);
-
-    // 按稀有度从高到低排列，仅展示有数据的档位
-    const order = [
-      GradeTier.black10,
-      GradeTier.gold10,
-      GradeTier.ten,
-      GradeTier.nine,
-      GradeTier.eight,
-      GradeTier.other,
-    ];
-    final tiers =
-        order.where((t) => (gradeTierCounts[t] ?? 0) > 0).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('评级分布',
-            style:
-                textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        if (total == 0)
-          Text('暂无评级数据',
-              style: TextStyle(
-                  color: colorScheme.onSurfaceVariant, fontSize: 13))
-        else
-          ...tiers.map((tier) {
-            final count = gradeTierCounts[tier] ?? 0;
-            final ratio = count / total;
-            final color = GradeUtils.tierColorOf(tier, gradeColors);
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 52,
-                    child: Text(GradeUtils.tierLabel(tier),
-                        style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 12,
-                            color: colorScheme.surfaceContainerHighest,
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: ratio.clamp(0.04, 1.0),
-                            child: Container(height: 12, color: color),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 28,
-                    child: Text('$count',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700)),
-                  ),
-                ],
-              ),
-            );
-          }),
-      ],
     );
   }
 }
